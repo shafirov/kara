@@ -106,7 +106,7 @@ class ActionContext(val appContext: ApplicationContext,
 }
 
 public class RequestScope<T>() {
-    @suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST")
     fun get(o : Any?, desc: kotlin.PropertyMetadata): T {
         val data = ActionContext.current().data
         return data.get(desc) as T
