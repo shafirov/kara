@@ -7,6 +7,7 @@ import kotlinx.reflection.filterIsAssignable
 import kotlinx.reflection.findClasses
 import kotlinx.reflection.kotlinCached
 import org.slf4j.LoggerFactory
+import java.lang.reflect.Modifier
 import java.net.SocketException
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -104,7 +105,8 @@ class ApplicationContext(val config: ApplicationConfig,
 
     fun scanPackageForMonitors(prefix: String): List<Class<ApplicationContextMonitor>> {
         try {
-            return classLoader.findClasses(prefix, reflectionCache).filterIsAssignable<ApplicationContextMonitor>()
+            return classLoader.findClasses(prefix, reflectionCache).filterIsAssignable<ApplicationContextMonitor>().
+                    filter { !Modifier.isAbstract(it.modifiers) }
         }
         catch(e: Throwable) {
             e.printStackTrace()
