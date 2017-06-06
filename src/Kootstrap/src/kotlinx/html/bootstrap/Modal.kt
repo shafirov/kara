@@ -193,13 +193,21 @@ fun HtmlBodyTag.modalBody(builder: ModalBuilder) {
 class MODAL() : HtmlBodyTag(null, "div") {
 }
 
-fun <T : HtmlBodyTag> T.modal(dataUrl: Link, effect: String = "fade", content: T.() -> Unit) {
+fun <T : HtmlBodyTag> T.modal(dataUrl: Link, effect: String = "fade", progress: (T.()-> Unit)? = null, content: T.() -> Unit) {
     withAttributes(content) {
         attribute("data-url", dataUrl.href())
         attribute("data-use", "modal")
     }
     div {
         addClass("modal $effect")
+    }
+    progress?.let {
+        withAttributes(it) {
+            attribute("data-progress", "true")
+            (this@withAttributes as HtmlBodyTag).style {
+                display = Display.none
+            }
+        }
     }
 }
 

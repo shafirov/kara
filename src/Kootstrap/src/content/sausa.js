@@ -176,12 +176,22 @@ function fetch(node) {
             break;
         case "modal":
             node.on("click", function (e) {
-                var self = this
-                node.next(".modal")
-                    .one('loaded.bs.modal', function() {
-                        $(this).modal('show', self);
-                    })
-                    .modal({ remote: node.attr("data-url"), show: false });
+                var self = this;
+                var modalEl = node.next(".modal");
+                var progressEl = modalEl.next();
+
+                if(progressEl.attr("data-progress") !== undefined) {
+                    progressEl.show();
+                    node.hide();
+                }
+                modalEl.one('loaded.bs.modal', function() {
+                    $(this).modal('show', self);
+                    if(progressEl.attr("data-progress") !== undefined) {
+                        progressEl.hide();
+                        node.show();
+                    }
+                })
+                .modal({ remote: node.attr("data-url"), show: false });
 
             });
             break;
