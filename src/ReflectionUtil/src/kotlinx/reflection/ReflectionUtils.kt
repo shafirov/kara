@@ -1,5 +1,6 @@
 package kotlinx.reflection
 
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -119,6 +120,8 @@ private fun isAnonClass(name: String): Boolean {
     return false
 }
 
+val scanLogger = LoggerFactory.getLogger("Kotlinx.Reflect.Scanner")!!
+
 private fun File.scanForClasses(prefix: String, classLoader: ClassLoader): List<Class<*>> {
     val path = prefix.packageToPath()
     return walk().filter {
@@ -127,7 +130,13 @@ private fun File.scanForClasses(prefix: String, classLoader: ClassLoader): List<
     .filter{
         it.isFile && it.absolutePath.contains(path)
     }.map {
-        classLoader.loadClass(prefix +"." + it.absolutePath.substringAfterLast(path).removeSuffix(".class").replace(File.separator, "."))
+        val className = prefix + "." + it.absolutePath.substringAfter(path).removeSuffix(".class").replace(File.separator, ".")
+        try {
+            classLoader.loadClass(className)
+        } catch (e : Throwable) {
+            scanLogger.info("Scan for classes not found requested class: $className", e)
+            null
+        }
     }.filterNotNull().toList()
 }
 
@@ -137,9 +146,14 @@ private fun JarFile.scanForClasses(prefix: String, classLoader: ClassLoader): Li
     val entries = this.entries()
     while(entries.hasMoreElements()) {
         entries.nextElement().let {
-            if (!it.isDirectory && it.name.endsWith(".class") && it.name.contains(path) && !isAnonClass(it.name)) {
-                classLoader.loadClass(prefix + "." + it.name.substringAfterLast(path).removeSuffix(".class").replace("/", "."))?.let{
-                    classes.add(it)
+            if (!it.isDirectory && it.name.endsWith(".class") && it.name.startsWith(path) && !isAnonClass(it.name)) {
+                val className = prefix + "." + it.name.substringAfter(path).removeSuffix(".class").replace("/", ".")
+                try {
+                    classLoader.loadClass(className)?.let {
+                        classes.add(it)
+                    }
+                } catch (e : Throwable) {
+                    scanLogger.info("Scan for classes not found requested class: $className", e)
                 }
             }
         }
