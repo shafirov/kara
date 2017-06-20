@@ -133,7 +133,7 @@ private fun File.scanForClasses(prefix: String, classLoader: ClassLoader): List<
         val className = prefix + "." + it.absolutePath.substringAfter(path).removeSuffix(".class").replace(File.separator, ".")
         try {
             classLoader.loadClass(className)
-        } catch (e : Throwable) {
+        } catch (e : ClassNotFoundException) {
             scanLogger.info("Scan for classes not found requested class: $className", e)
             null
         }
@@ -152,7 +152,7 @@ private fun JarFile.scanForClasses(prefix: String, classLoader: ClassLoader): Li
                     classLoader.loadClass(className)?.let {
                         classes.add(it)
                     }
-                } catch (e : Throwable) {
+                } catch (e : ClassNotFoundException) {
                     scanLogger.info("Scan for classes not found requested class: $className", e)
                 }
             }
