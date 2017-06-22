@@ -1,0 +1,21 @@
+<project name="kara" default="js.minify">
+
+    <property name="root.dir" location="${basedir}/.."/>
+    <property name="js.dir" location="${root.dir}/src/Kootstrap/src/content"/>
+
+    <target name="js.minify">
+        <apply executable="java" parallel="false" dest="${js.dir}">
+            <fileset dir="${js.dir}" includes="*.js" />
+            <arg line="-jar"/>
+            <arg path="${root.dir}/lib/yuicompressor-2.4.8.jar" />
+            <srcfile/>
+            <arg line="-o"/>
+            <mapper type="glob" from="*.js" to="*-min.js"/>
+            <targetfile/>
+        </apply>
+        <move todir="${js.dir}" overwrite="true">
+            <fileset dir="${js.dir}" />
+            <mapper type="glob" from="*-min.js" to="*.js"/>
+        </move>
+    </target>
+</project>
