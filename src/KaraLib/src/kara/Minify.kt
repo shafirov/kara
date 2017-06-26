@@ -12,9 +12,8 @@ fun ByteArray.minifyResource(context: ActionContext, mime: String, resourceName:
 
     try {
         return when {
-            !context.config.isMinifcationAllowed(resourceName) -> return this
-            (mime == "text/javascript" || mime == "application/javascript") && !fileName.endsWith(".min.js") -> ClosureCompiler.compile(this, fileName)
-            mime == "text/css" -> compressCss()
+            context.config.isMinifyJs && (mime == "text/javascript" || mime == "application/javascript") &&!fileName.endsWith(".min.js")  -> ClosureCompiler.compile(this, fileName)
+            context.config.isMinifyCss && mime == "text/css" -> compressCss()
             else -> this
         }
     }

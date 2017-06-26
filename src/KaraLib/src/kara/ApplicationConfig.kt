@@ -18,6 +18,9 @@ open class ApplicationConfig(val appClassloader: ClassLoader) : Config() {
         }
     }
 
+    val isMinifyCss by lazy { tryGet("kara.minify.css")?.toBoolean() ?: false }
+    val isMinifyJs by lazy { tryGet("kara.minify.js")?.toBoolean() ?: false }
+
     /** Returns true if the application is running in the development environment. */
     fun isDevelopment(): Boolean = get("kara.environment") == "development"
 
@@ -29,10 +32,6 @@ open class ApplicationConfig(val appClassloader: ClassLoader) : Config() {
 
     val applicationPackageName: String
         get() = this["kara.appPackage"]
-
-    private val ignoreMinificationPrefixes by lazy {
-        tryGet("kara.ignoreMinificationPrefixes")?.split(',')?.filterNot { it.isNullOrBlank() }.orEmpty()
-    }
 
     private val _publicDirectories by lazy {
         readPublicDirProperty().map {
@@ -93,15 +92,5 @@ open class ApplicationConfig(val appClassloader: ClassLoader) : Config() {
                     .map { it.toURI().toURL() })
         }
         return urls.toTypedArray()
-    }
-
-    fun isMinifcationAllowed(resourceName: String): Boolean {
-        val isMinifyResources = when (tryGet("kara.minifyResources")) {
-            "true", "yes" -> true
-            "false", "no" -> false
-            else -> isProduction()
-        }
-
-        return isMinifyResources && ignoreMinificationPrefixes.none { resourceName.startsWith(it) }
     }
 }
