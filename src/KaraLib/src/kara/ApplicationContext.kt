@@ -29,7 +29,7 @@ class ApplicationContext(val config: ApplicationConfig,
 
     init {
         packages.flatMap { scanPackageForMonitors(it) }.map {
-            it.kotlinCached.objectInstance as? ApplicationContextMonitor ?: it.newInstance()
+            it.kotlinCached.objectInstance ?: it.newInstance()
         }.sortedBy { it.priority }.forEach { monitor ->
             logger.info("Executing startup sequence on ${monitor.javaClass}")
             monitor.created(this)
@@ -106,7 +106,7 @@ class ApplicationContext(val config: ApplicationConfig,
     fun scanPackageForMonitors(prefix: String): List<Class<ApplicationContextMonitor>> {
         try {
             return classLoader.findClasses(prefix, reflectionCache).filterIsAssignable<ApplicationContextMonitor>().
-                    filter { !Modifier.isAbstract(it.modifiers) }
+                    filter { !Modifier.isAbstract(it.modifiers) }.distinct()
         }
         catch(e: Throwable) {
             e.printStackTrace()
