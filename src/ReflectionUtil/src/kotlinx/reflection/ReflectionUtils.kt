@@ -123,21 +123,27 @@ private fun isAnonClass(name: String): Boolean {
 val scanLogger = LoggerFactory.getLogger("Kotlinx.Reflect.Scanner")!!
 
 private fun File.scanForClasses(prefix: String, classLoader: ClassLoader): List<Class<*>> {
+    scanLogger.debug("Scanning classes in ${this.absolutePath}")
     val path = prefix.packageToPath()
     return walk().filter {
-        it.isDirectory || (it.isFile && it.extension == "class" && !isAnonClass(it.name))
-    }.toList()
-    .filter{
-        it.isFile && it.absolutePath.contains(path)
-    }.map {
-        val className = prefix + "." + it.absolutePath.substringAfter(path).removeSuffix(".class").replace(File.separator, ".")
+        it.isFile && it.extension == "class" && !isAnonClass(it.name) && it.absolutePath.contains(path)
+    }.mapNotNull {
+        fun substringAfterPrefix() =
+                if (it.absolutePath.replace(prefix, "").length == it.absolutePath.length - prefix.length) // only one occurrence
+                    it.absolutePath.substringAfter(path)
+                else
+                    it.absolutePath.substringAfterLast(path)
+
+        val className = prefix + "." + substringAfterPrefix().removeSuffix(".class").replace(File.separator, ".")
+
         try {
+            scanLogger.debug("Loading class: $className")
             classLoader.loadClass(className)
-        } catch (e : ClassNotFoundException) {
-            scanLogger.info("Scan for classes not found requested class: $className", e)
+        } catch (e: ClassNotFoundException) {
+            scanLogger.error("Scan for classes not found requested class: $className", e)
             null
         }
-    }.filterNotNull().toList()
+    }.toList()
 }
 
 private fun JarFile.scanForClasses(prefix: String, classLoader: ClassLoader): List<Class<*>> {
@@ -153,7 +159,7 @@ private fun JarFile.scanForClasses(prefix: String, classLoader: ClassLoader): Li
                         classes.add(it)
                     }
                 } catch (e : ClassNotFoundException) {
-                    scanLogger.info("Scan for classes not found requested class: $className", e)
+                    scanLogger.error("Scan for classes not found requested class: $className", e)
                 }
             }
         }
