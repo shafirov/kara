@@ -9,9 +9,9 @@ import kotlinx.reflection.kotlinCached
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Modifier
 import java.net.SocketException
-import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import kotlin.collections.ArrayList
 import kotlin.reflect.KAnnotatedElement
 
 /** Current application execution context
@@ -22,7 +22,7 @@ class ApplicationContext(val config: ApplicationConfig,
                          val reflectionCache: MutableMap<Pair<Int, String>, List<Class<*>>>,
                          val resourceTypes: List<Pair<KAnnotatedElement, ResourceDescriptor>>) {
     val logger = LoggerFactory.getLogger(this.javaClass)!!
-    private val interceptors = ArrayList<(HttpServletRequest, HttpServletResponse, ResourceDescriptor?, (HttpServletRequest, HttpServletResponse, ResourceDescriptor?) -> Boolean) -> Boolean>()
+    private val interceptors = ArrayList<Interceptor>()
     private val monitorInstances = ArrayList<ApplicationContextMonitor>()
 
     val version: Int = ++versionCounter
@@ -37,8 +37,20 @@ class ApplicationContext(val config: ApplicationConfig,
         }
     }
 
-    fun intercept(interceptor: (request: HttpServletRequest, response: HttpServletResponse, descriptor: ResourceDescriptor?, proceed: (HttpServletRequest, HttpServletResponse, ResourceDescriptor?) -> Boolean) -> Boolean) {
+    fun intercept(interceptor: (request: HttpServletRequest, response: HttpServletResponse,
+                                descriptor: ResourceDescriptor?,
+                                proceed: (HttpServletRequest, HttpServletResponse, ResourceDescriptor?) -> Boolean) -> Boolean) {
+        intercept(object : Interceptor(interceptors.size) {
+            override fun invoke(request: HttpServletRequest, response: HttpServletResponse, descriptor: ResourceDescriptor?,
+                                proceed: (HttpServletRequest, HttpServletResponse, ResourceDescriptor?) -> Boolean): Boolean {
+                return interceptor(request, response, descriptor, proceed)
+            }
+        })
+    }
+
+    fun intercept(interceptor: Interceptor) {
         interceptors.add(interceptor)
+        interceptors.sort()
     }
 
     fun dispatch(request: HttpServletRequest, response: HttpServletResponse): Boolean {
