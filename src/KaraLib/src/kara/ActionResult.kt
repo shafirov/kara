@@ -15,7 +15,7 @@ interface ActionResult {
 
     /** Subclasses must implement this to write the action result to the HTTP response.
      */
-    fun writeResponse(context: ActionContext): Unit
+    fun writeResponse(context: ActionContext)
 }
 
 abstract class BaseActionResult(val contentType: String, val code: Int, val content: BaseActionResult.() -> String?) : ActionResult {

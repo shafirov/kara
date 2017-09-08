@@ -10,8 +10,8 @@ import java.io.StringWriter
 fun ByteArray.minifyResource(context: ActionContext, mime: String, resourceName: String): ByteArray {
     val fileName = resourceName.substringAfterLast("/")
 
-    try {
-        return when {
+    return try {
+        when {
             context.config.isMinifyJs && (mime == "text/javascript" || mime == "application/javascript") &&!fileName.endsWith(".min.js")  -> ClosureCompiler.compile(this, fileName)
             context.config.isMinifyCss && mime == "text/css" -> compressCss()
             else -> this
@@ -19,7 +19,7 @@ fun ByteArray.minifyResource(context: ActionContext, mime: String, resourceName:
     }
     catch(e: Throwable) {
         MinifierReporter.log.warn("Minification failed at $fileName will be used unminified version.", e)
-        return this
+        this
     }
 }
 
@@ -65,13 +65,12 @@ object ClosureCompiler {
         }
     }
 
-    fun compile(content: ByteArray, fileName: String?) : ByteArray {
-        return Compiler(LogOnlyErrorManager).run {
+    fun compile(content: ByteArray, fileName: String?) : ByteArray =
+        Compiler(LogOnlyErrorManager).run {
             disableThreads()
             compile(externs, listOf(SourceFile.fromCode(fileName ?: "plain javascript", content.toString(Charsets.UTF_8))), options)
             toSource().toByteArray()
         }
-    }
 }
 
 private fun ByteArray.compressCss(): ByteArray {

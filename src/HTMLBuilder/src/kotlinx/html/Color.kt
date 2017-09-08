@@ -24,9 +24,8 @@ class Color(var red: Double, var green: Double, var blue: Double, var alpha: Dou
     companion object {
 
         /** Creates a color from integer RGBA values between 0 and 255. */
-        fun fromRgb(red: Int, green: Int, blue: Int, alpha: Int = 255): Color {
-            return Color(red.toDouble() / 255, green.toDouble() / 255.0, blue.toDouble() / 255.0, alpha.toDouble() / 255.0)
-        }
+        fun fromRgb(red: Int, green: Int, blue: Int, alpha: Int = 255): Color =
+                Color(red.toDouble() / 255, green.toDouble() / 255.0, blue.toDouble() / 255.0, alpha.toDouble() / 255.0)
 
         /** Makes a color from a hex string (hash included). */
         fun fromHex(s : String) : Color {
@@ -71,9 +70,7 @@ class Color(var red: Double, var green: Double, var blue: Double, var alpha: Dou
     }
 
     /** Creates a copy of the color. */
-    fun copy(): Color {
-        return Color(red, green, blue)
-    }
+    fun copy(): Color = Color(red, green, blue)
 
     var redInt: Int
         get() = (red * 255.0).toInt()
@@ -96,15 +93,11 @@ class Color(var red: Double, var green: Double, var blue: Double, var alpha: Dou
     val hexString: String
         get() = "#${redInt.twoDigitHex()}${greenInt.twoDigitHex()}${blueInt.twoDigitHex()}"
 
-    override fun toString(): String {
-        if (alpha < 1.0) {
-            return "rgba($redInt, $greenInt, $blueInt, ${java.lang.String.format(Locale.ENGLISH, "%.3f", alpha)})"
-        }
-        else {
-            return hexString
-        }
-    }
-
+    override fun toString(): String =
+        if (alpha < 1.0)
+            "rgba($redInt, $greenInt, $blueInt, ${java.lang.String.format(Locale.ENGLISH, "%.3f", alpha)})"
+        else
+            hexString
 
     /** Generate HSL values based the current RGB values. */
     fun toHsl(): HslValues {
@@ -221,7 +214,5 @@ fun color(s: String): Color {
 }
 
 /** Returns true if the string is a valid color literal. */
-fun isColor(s: String): Boolean {
-    return s.startsWith("#") || s.startsWith("rgb")
-}
+fun isColor(s: String): Boolean = s.startsWith("#") || s.startsWith("rgb")
 

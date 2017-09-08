@@ -188,7 +188,7 @@ object Routes {
         open class SomeInterfaceController( handler: ActionContext.() -> ActionResult = { TextResult("It's interface") })
             : Request(handler)
 
-        class ImplInterfaceController() : SomeInterfaceController({ TextResult("It's implementation") })
+        class ImplInterfaceController : SomeInterfaceController({ TextResult("It's implementation") })
     }
 
     object InterfaceNotFinalControllerTest {
@@ -197,7 +197,7 @@ object Routes {
         open class SomeInterfaceController( handler: ActionContext.() -> ActionResult = { TextResult("It's interface") })
             : Request(handler)
 
-        open class ImplInterfaceController() : SomeInterfaceController({ TextResult("It's implementation") })
+        open class ImplInterfaceController : SomeInterfaceController({ TextResult("It's implementation") })
     }
 
     object InterfaceParamControllerTest {

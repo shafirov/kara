@@ -29,5 +29,5 @@ abstract class HtmlView(val layout: HtmlLayout? = null) : BaseActionResult("text
     abstract fun HtmlBodyTag.render()
 }
 
-fun HtmlBodyTag.renderView(view: HtmlView) : Unit = with(view) { render() }
+fun HtmlBodyTag.renderView(view: HtmlView) = with(view) { render() }
 

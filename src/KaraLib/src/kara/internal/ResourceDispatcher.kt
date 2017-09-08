@@ -24,9 +24,7 @@ class ResourceDispatcher(val context: ApplicationContext, resourceTypes: List<Pa
         }
     }
 
-    fun route(requestType: KAnnotatedElement): ResourceDescriptor {
-        return resources[requestType] ?: requestType.route()
-    }
+    fun route(requestType: KAnnotatedElement): ResourceDescriptor = resources[requestType] ?: requestType.route()
 
     /** Matches an http method and url to an ActionInfo object. Returns null if no match is found.
      */

@@ -8,8 +8,13 @@ import java.lang.reflect.InvocationTargetException
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import kotlin.reflect.*
-import kotlin.reflect.full.*
+import kotlin.reflect.KAnnotatedElement
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.primaryConstructor
 
 class ResultWithCodeException(val code: Int, val result: Any?) : Exception()
 
@@ -109,9 +114,8 @@ internal class FunctionWrapperResource(val func: KFunction<Any>, val params: Map
     override val properties: Map<String, Any?> get() = func.parameters.filter { it.kind == KParameter.Kind.VALUE }.associate { it.name!! to params[it.name!!]}
 }
 
-private fun KAnnotatedElement.fastRoute(): ResourceDescriptor {
-    return ActionContext.tryGet()?.appContext?.dispatcher?.route(this) ?: route()
-}
+private fun KAnnotatedElement.fastRoute(): ResourceDescriptor =
+        ActionContext.tryGet()?.appContext?.dispatcher?.route(this) ?: route()
 
 fun KClass<out Resource>.baseLink(): Link = fastRoute().baseLink()
 fun Class<out Resource>.baseLink(): Link = kotlinCached.baseLink()
@@ -135,9 +139,7 @@ private fun ResourceDescriptor.baseLink() : Link {
     } else route).link()
 }
 
-fun String.link(): Link {
-    return DirectLink(appendContext())
-}
+fun String.link(): Link = DirectLink(appendContext())
 
 fun contextPath(): String {
     val request = ActionContext.tryGet()?.request ?: return ""

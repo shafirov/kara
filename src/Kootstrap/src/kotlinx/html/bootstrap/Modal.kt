@@ -190,8 +190,7 @@ fun HtmlBodyTag.modalBody(builder: ModalBuilder) {
     }
 }
 
-class MODAL() : HtmlBodyTag(null, "div") {
-}
+class MODAL : HtmlBodyTag(null, "div")
 
 fun <T : HtmlBodyTag> T.modal(dataUrl: Link, effect: String = "fade", progress: (T.()-> Unit)? = null, content: T.() -> Unit) {
     withAttributes(content) {

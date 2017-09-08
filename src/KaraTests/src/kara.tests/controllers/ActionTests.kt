@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 
 
 /** Tests for executing actions */
-class ActionTests() {
+class ActionTests {
 
     @Test fun basicHtmlLayout() {
         val response = mockDispatch("GET", "/")

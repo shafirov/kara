@@ -35,12 +35,12 @@ class JettyRunner(val applicationConfig: ApplicationConfig) {
         }
     }
 
-    inner class Handler() : AbstractHandler() {
+    inner class Handler : AbstractHandler() {
         val CONFIG = MultipartConfigElement(System.getProperty("java.io.tmpdir"))
 
         override fun handle(target: String?, baseRequest: Request?, request: HttpServletRequest?, response: HttpServletResponse?) {
-            if (baseRequest?.contentType?.contains("multipart/form-data", ignoreCase = true) ?: false) {
-                baseRequest?.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, CONFIG)
+            if (baseRequest?.contentType?.contains("multipart/form-data", ignoreCase = true) == true) {
+                baseRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, CONFIG)
             }
 
             response!!.characterEncoding = "UTF-8"

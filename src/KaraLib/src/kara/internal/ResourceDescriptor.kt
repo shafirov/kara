@@ -126,21 +126,17 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
             return ResourceDescriptor(method, resolvedRoute, func::class, { FunctionWrapperResource(func, it) }, crossOrigin)
         }
 
-        private fun extractFromAnnotation(ann: Annotation): Triple<HttpMethod, String?, String> {
-            return when (ann) {
-                is Get -> HttpMethod.GET to null and ann.route
-                is Post -> HttpMethod.POST to ann.allowCrossOrigin and ann.route
-                is Put -> HttpMethod.PUT to ann.allowCrossOrigin and ann.route
-                is Delete -> HttpMethod.DELETE to ann.allowCrossOrigin and ann.route
-                is Route -> ann.method to ann.allowCrossOrigin and ann.route
-                else -> error("Unsupported annotation $ann")
-            }
+        private fun extractFromAnnotation(ann: Annotation): Triple<HttpMethod, String?, String> = when (ann) {
+            is Get -> HttpMethod.GET to null and ann.route
+            is Post -> HttpMethod.POST to ann.allowCrossOrigin and ann.route
+            is Put -> HttpMethod.PUT to ann.allowCrossOrigin and ann.route
+            is Delete -> HttpMethod.DELETE to ann.allowCrossOrigin and ann.route
+            is Route -> ann.method to ann.allowCrossOrigin and ann.route
+            else -> error("Unsupported annotation $ann")
         }
     }
 
-    override fun toString(): String {
-        return "Resource<$resourceClass> at $route"
-    }
+    override fun toString(): String = "Resource<$resourceClass> at $route"
 
 }
 

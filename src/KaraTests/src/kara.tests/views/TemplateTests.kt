@@ -7,7 +7,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class TemplateTests() {
+class TemplateTests {
 
     @Test fun inlineTemplate() {
         val response = mockDispatch("GET", "/template/1")

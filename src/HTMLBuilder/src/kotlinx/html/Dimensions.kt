@@ -8,9 +8,7 @@ enum class LinearUnits(val value: String) {
     _em("em"),
     _px("px"),
     auto("auto");
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
 /** Represents a single linear dimension.
@@ -42,9 +40,7 @@ class LinearDimension(var value: Double, var units: LinearUnits) {
 val auto: LinearDimension = LinearDimension(0.0, LinearUnits.auto)
 
 /** Returns true if the given string represents a valid linear dimension */
-fun isLinearDimension(s: String): Boolean {
-    return s.endsWith("px") || s.endsWith("em") || s.endsWith("%")
-}
+fun isLinearDimension(s: String): Boolean = s.endsWith("px") || s.endsWith("em") || s.endsWith("%")
 
 /** Extenion property to convejkrt a double to a LinearDimension with units em. */
 val Double.em: LinearDimension get() = LinearDimension(this, LinearUnits._em)
@@ -67,23 +63,16 @@ val Int.percent: LinearDimension get() = LinearDimension(this.toDouble(), Linear
 /** Stores 4 linear dimensions that describe a box, like padding and margin.
  */
 class BoxDimensions(var top: LinearDimension, var right: LinearDimension, var bottom: LinearDimension, var left: LinearDimension) {
-
-    override fun toString(): String {
-        return "$top $right $bottom $left"
-    }
+    override fun toString(): String = "$top $right $bottom $left"
 }
 
 /** Convenience function for making a BoxDimensions with all dimensions the same. */
-fun box(all: LinearDimension): BoxDimensions {
-    return BoxDimensions(all, all, all, all)
-}
+fun box(all: LinearDimension) = BoxDimensions(all, all, all, all)
 
 /** Convenience function for making a BoxDimensions with top/bottom and left/right values. */
-fun box(topBottom: LinearDimension, leftRight: LinearDimension): BoxDimensions {
-    return BoxDimensions(topBottom, leftRight, topBottom, leftRight)
-}
+fun box(topBottom: LinearDimension, leftRight: LinearDimension) =
+        BoxDimensions(topBottom, leftRight, topBottom, leftRight)
 
 /** Convenience function for making a BoxDimensions with all four dimensions. */
-fun box(top: LinearDimension, right: LinearDimension, bottom: LinearDimension, left: LinearDimension): BoxDimensions {
-    return BoxDimensions(top, right, bottom, left)
-}
+fun box(top: LinearDimension, right: LinearDimension, bottom: LinearDimension, left: LinearDimension) =
+        BoxDimensions(top, right, bottom, left)

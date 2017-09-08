@@ -107,9 +107,7 @@ class JsonObject : JsonElement {
         builder.append("}")
     }
 
-    fun isEmpty(): Boolean {
-        return properties.isEmpty()
-    }
+    fun isEmpty(): Boolean = properties.isEmpty()
 }
 
 class JsonCode(val code: String) : JsonElement {
@@ -161,18 +159,14 @@ inline fun JsonRoot.jsonObject(body: JsonObject.() -> Unit){
     set(obj)
 }
 
-inline fun jsonResult(body: JsonRoot.() -> Unit): JsonResult {
-    return JsonResult(jsonNode(body))
-}
+inline fun jsonResult(body: JsonRoot.() -> Unit): JsonResult = JsonResult(jsonNode(body))
 
 inline fun jsonString(body: JsonRoot.() -> Unit) = buildString {
     jsonNode(body).build(this)
 }
 
-inline fun jsonNode(body: JsonRoot.() -> Unit): JsonElement {
-    return JsonRoot().apply {
-        body()
-    }
+inline fun jsonNode(body: JsonRoot.() -> Unit): JsonElement = JsonRoot().apply {
+    body()
 }
 
 @Deprecated(replaceWith = ReplaceWith("jsonResult(body)"), message = "use jsonResult instead", level = DeprecationLevel.WARNING)

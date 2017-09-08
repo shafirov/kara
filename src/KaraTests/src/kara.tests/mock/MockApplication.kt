@@ -12,7 +12,7 @@ object MockApplication : Application(ApplicationConfig(ApplicationConfig::class.
 
     init {
         val classLoader = config.appClassloader
-        context = ApplicationContext(config, listOf<String>(), classLoader, hashMapOf(), scanObjects(arrayOf(Routes), classLoader))
+        context = ApplicationContext(config, listOf(), classLoader, hashMapOf(), scanObjects(arrayOf(Routes), classLoader))
     }
 }
 
@@ -27,7 +27,5 @@ fun mockDispatch(httpMethod : String, url : String) : MockHttpServletResponse {
 
 
 /** Creates a HttpServletRequest with the given method and url*/
-fun mockRequest(httpMethod : String, url : String) : MockHttpServletRequest {
-    val request = MockHttpServletRequest(httpMethod, url)
-    return request
-}
+fun mockRequest(httpMethod : String, url : String) : MockHttpServletRequest =
+        MockHttpServletRequest(httpMethod, url)

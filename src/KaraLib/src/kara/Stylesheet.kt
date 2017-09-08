@@ -17,9 +17,7 @@ abstract class Stylesheet(var namespace : String = "") : CachedResource() {
         }
     }
 
-    override fun content(context: ActionContext): ResourceContent {
-        return ResourceContent("text/css", toString().toByteArray(Charsets.UTF_8))
-    }
+    override fun content(context: ActionContext) = ResourceContent("text/css", toString().toByteArray(Charsets.UTF_8))
 }
 
 fun HEAD.style(media: String = "all", mimeType: String = "text/css", buildSheet: CssElement.() -> Unit) {

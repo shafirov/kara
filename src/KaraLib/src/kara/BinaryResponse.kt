@@ -35,11 +35,8 @@ class BinaryResponse(val mime: String, val length: Int?, val modified : Long?, v
             }
 
             else -> {
-                val stream = context.streamData()
-                try {
+                context.streamData().use { stream ->
                     stream.copyTo(r.outputStream!!)
-                } finally {
-                    stream.close()
                 }
             }
         }

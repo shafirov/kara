@@ -13,9 +13,8 @@ data class ResourceContent(val mime: String, val lastModified: Long?, val length
 abstract class DynamicResource : Resource() {
     abstract fun content(context: ActionContext): ResourceContent
 
-    override fun handle(context: ActionContext): ActionResult {
-        return content(context).let { BinaryResponse(it.mime, it.length, it.lastModified, null, it.data) }
-    }
+    override fun handle(context: ActionContext): ActionResult =
+            content(context).let { BinaryResponse(it.mime, it.length, it.lastModified, null, it.data) }
 }
 
 data class ResourceCache(val mime: String, val bytes: ByteArray, val lastModified: Long?, val appVersion: Int) {
@@ -26,9 +25,7 @@ abstract class CachedResource : DynamicResource() {
     @Volatile
     private var cache: ResourceCache? = null
 
-    override fun href(): String {
-        return super.href() + "?v=${versionHash()}"
-    }
+    override fun href(): String = super.href() + "?v=${versionHash()}"
 
     open fun validateCache(context: ActionContext, cache: ResourceCache): Boolean = true
 
@@ -69,30 +66,24 @@ open class EmbeddedResource(val mime : String, val name: String) : CachedResourc
         return ResourceContent(mime, modification, null, {content.openStream()})
     }
 
-    override fun validateCache(context: ActionContext, cache: ResourceCache): Boolean {
-        return context.loadResource(name).first == cache.lastModified
-    }
+    override fun validateCache(context: ActionContext, cache: ResourceCache): Boolean =
+            context.loadResource(name).first == cache.lastModified
 }
 
-fun ActionContext.resourceURL(name: String): URL? {
-    return appContext.classLoader.getResource(name) ?: request.servletContext?.getResource(name)
-}
+fun ActionContext.resourceURL(name: String): URL? =
+        appContext.classLoader.getResource(name) ?: request.servletContext?.getResource(name)
 
-fun ActionContext.publicDirectoryResource(name: String): Pair<Long?, URL>? {
-    for (dir in config.publicDirectories) {
-        val candidate = File(dir, name)
-        if (candidate.exists()) {
-            return candidate.lastModified() to candidate.toURI().toURL()
-        }
-    }
+fun ActionContext.publicDirectoryResource(name: String): Pair<Long?, URL>? =
+        config.publicDirectories
+            .asSequence()
+            .map { File(it, name) }
+            .firstOrNull { it.exists() }
+            ?.let { it.lastModified() to it.toURI().toURL() }
 
-    return null
-}
 
-fun ActionContext.loadResource(name: String): Pair<Long?, URL> {
-    return publicDirectoryResource(name) ?:
-            null to (resourceURL(name) ?: throw NotFoundException("Cannot find $name in classpath or servlet context resources"))
-}
+fun ActionContext.loadResource(name: String): Pair<Long?, URL> =
+        publicDirectoryResource(name)
+            ?: null to (resourceURL(name) ?: throw NotFoundException("Cannot find $name in classpath or servlet context resources"))
 
 open class Request(private val handler: ActionContext.() -> ActionResult) : Resource(){
     override fun handle(context: ActionContext): ActionResult = context.handler()

@@ -11,28 +11,21 @@ interface SelectorTrait {
 }
 
 object EmptyTrait : SelectorTrait {
-    override fun toExternalForm(): String {
-        return ""
-    }
+    override fun toExternalForm(): String = ""
 }
 
 interface StyleClass : SelectorTrait, Selector {
     val name: String
 
-    override fun toExternalForm(): String {
-        return ".$name"
-    }
+    override fun toExternalForm(): String = ".$name"
 }
 
-class SimpleClassStyle(override val name : String) : StyleClass {
-}
+class SimpleClassStyle(override val name : String) : StyleClass
 
 class CompositeStyleClass(val a: StyleClass, val b: StyleClass) : StyleClass {
     override val name: String get() = "${a.name} ${b.name}"
 
-    override fun toExternalForm(): String {
-        return "${a.toExternalForm()} ${b.toExternalForm()}"
-    }
+    override fun toExternalForm(): String = "${a.toExternalForm()} ${b.toExternalForm()}"
 }
 
 operator fun StyleClass?.plus(another: StyleClass?): StyleClass? = when {
@@ -46,15 +39,13 @@ enum class PseudoClass : StyleClass {
     root, firstChild, lastChild, firstOfType, lastOfType, onlyChild, onlyOfType,
     empty, link, visited, active, focus, hover, target, enabled, disabled, checked;
 
-    override fun toExternalForm(): String {
-        return ":$name"
-    }
+    override fun toExternalForm(): String = ":$name"
 }
 
 /**
  * Represents a single stylesheet element.
  */
-open class CssElement() {
+open class CssElement {
     val children = arrayListOf<StyledElement>()
     val attributes = HashMap<String, Any>()
 
@@ -63,9 +54,7 @@ open class CssElement() {
             any.invoke(this, body = body)
         }
 
-        override fun toExternalForm(): String {
-            return "#$name"
-        }
+        override fun toExternalForm(): String = "#$name"
     }
 
     inner open class TagSelector(val name: String) : Selector {
@@ -84,15 +73,11 @@ open class CssElement() {
             s(SimpleSelector(this, arrayOf(SimpleClassStyle(classes))).toExternalForm(), body)
         }
 
-        operator fun invoke(vararg t: SelectorTrait): Selector {
-            return SimpleSelector(this, t)
-        }
+        operator fun invoke(vararg t: SelectorTrait): Selector = SimpleSelector(this, t)
 
         fun isAny(): Boolean = "*" == name
 
-        override fun toExternalForm(): String {
-            return name
-        }
+        override fun toExternalForm(): String = name
     }
 
     val any: TagSelector get() = TagSelector("*")
@@ -148,36 +133,22 @@ open class CssElement() {
         any.invoke(klass, body = body)
     }
 
-    fun att(name: String): Attribute = Attribute(name, kotlinx.html.HasAttribute(name))
+    fun att(name: String): Attribute = Attribute(name, HasAttribute(name))
 
-    class Attribute internal constructor(val name: String, val filter: kotlinx.html.AttFilter) : SelectorTrait {
-        infix fun startsWith(value: String): Attribute {
-            return Attribute(name, kotlinx.html.StartsWith(value))
-        }
+    class Attribute internal constructor(val name: String, val filter: AttFilter) : SelectorTrait {
+        infix fun startsWith(value: String): Attribute = Attribute(name, StartsWith(value))
 
-        infix fun equalTo(value: String): Attribute {
-            return Attribute(name, kotlinx.html.Equals(value))
-        }
+        infix fun equalTo(value: String): Attribute = Attribute(name, Equals(value))
 
-        infix fun endsWith(value: String): Attribute {
-            return Attribute(name, kotlinx.html.EndsWith(value))
-        }
+        infix fun endsWith(value: String): Attribute = Attribute(name, EndsWith(value))
 
-        infix fun contains(value: String): Attribute {
-            return Attribute(name, kotlinx.html.Contains(value, kotlinx.html.AttributeValueTokenizer.Substring))
-        }
+        infix fun contains(value: String): Attribute = Attribute(name, Contains(value, AttributeValueTokenizer.Substring))
 
-        infix fun containsInHypen(value: String): Attribute {
-            return Attribute(name, kotlinx.html.Contains(value, kotlinx.html.AttributeValueTokenizer.Hypen))
-        }
+        infix fun containsInHypen(value: String): Attribute = Attribute(name, Contains(value, AttributeValueTokenizer.Hypen))
 
-        infix fun containsInSpaces(value: String): Attribute {
-            return Attribute(name, kotlinx.html.Contains(value, kotlinx.html.AttributeValueTokenizer.Spaces))
-        }
+        infix fun containsInSpaces(value: String): Attribute = Attribute(name, Contains(value, AttributeValueTokenizer.Spaces))
 
-        override fun toExternalForm(): String {
-            return "[$name${filter.toExternalForm()}]"
-        }
+        override fun toExternalForm(): String = "[$name${filter.toExternalForm()}]"
     }
 
     class SimpleSelector(val tag: TagSelector, val traits: Array<out SelectorTrait>) : Selector {
@@ -201,14 +172,10 @@ open class CssElement() {
         s(UnionSelector(selectors).toExternalForm(), body)
     }
 
-    fun forAny(vararg selectors: Selector): UnionSelector {
-        return UnionSelector(selectors)
-    }
+    fun forAny(vararg selectors: Selector): UnionSelector = UnionSelector(selectors)
 
     class UnionSelector(val selectors: Array<out Selector>) : Selector {
-        override fun toExternalForm(): String {
-            return "(${selectors.map ({ it.toExternalForm() }).joinToString(",")})"
-        }
+        override fun toExternalForm(): String = selectors.joinToString(prefix = "(", postfix = ")", separator = ",") { it.toExternalForm() }
     }
 
     /**
@@ -227,7 +194,7 @@ class StyledElement(val selector: String) : CssElement() {
      * Writes the element to the builder with the given indenation.
      */
     fun build(builder: StringBuilder, baseSelector: String) {
-        val thisSelector = if (baseSelector.length > 0) if (selector.startsWith(':')) "$baseSelector$selector" else "$baseSelector $selector" else selector
+        val thisSelector = if (baseSelector.isNotEmpty()) if (selector.startsWith(':')) "$baseSelector$selector" else "$baseSelector $selector" else selector
         builder.append("$thisSelector {\n")
         for (a in attributes.keys) {
             val attr = attributes[a]!!
@@ -250,12 +217,11 @@ class StyledElement(val selector: String) : CssElement() {
 
     /** Strongly-typed method for pulling attributes out of the hash, with a default return value. */
     @Suppress("UNCHECKED_CAST")
-    fun <T> getAttribute(name: String, default: T): T {
+    fun <T> getAttribute(name: String, default: T): T =
         if (attributes.containsKey(name))
-            return attributes[name] as T
+            attributes[name] as T
         else
-            return default
-    }
+            default
 
     /** Shorthand for making a color inside a stylesheet. */
     fun c(colorString: String): Color = color(colorString)
@@ -292,16 +258,13 @@ class StyledElement(val selector: String) : CssElement() {
 
     var border: String = ""
         set(value) {
-            val tokens = value.split(' ')
-            for (token in tokens) {
-                if (isLinearDimension(token))
-                    borderWidth = LinearDimension.fromString(token)
-                else if (isColor(token))
-                    borderColor = color(token)
-                else if (isBorderStyle(token))
-                    borderStyle = makeBorderStyle(token)
-                else
-                    throw Exception("Invalid border property: $token")
+            for (token in value.split(' ')) {
+                when {
+                    isLinearDimension(token) -> borderWidth = LinearDimension.fromString(token)
+                    isColor(token) -> borderColor = color(token)
+                    isBorderStyle(token) -> borderStyle = makeBorderStyle(token)
+                    else -> throw Exception("Invalid border property: $token")
+                }
             }
         }
 

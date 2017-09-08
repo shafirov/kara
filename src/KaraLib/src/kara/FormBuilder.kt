@@ -16,17 +16,12 @@ interface FormModel<in P> {
 class BeanFormModel<out T:Any>(val model: T) : FormModel<String> {
     val modelName = model.javaClass.simpleName.toLowerCase()
 
-    override fun modelName(): String {
-        return modelName
-    }
+    override fun modelName(): String = modelName
 
-    override fun propertyValue(property: String): String {
-        return model.propertyValue<T, Any>(property).toString() // TODO: Use provided parameter serialization instead of toString
-    }
+    override fun propertyValue(property: String): String =
+            model.propertyValue<T, Any>(property).toString() // TODO: Use provided parameter serialization instead of toString
 
-    override fun propertyName(property: String): String {
-        return property
-    }
+    override fun propertyName(property: String): String = property
 }
 
 fun <P,M:FormModel<P>> HtmlBodyTag.formForModel(model: M, action : Link, formMethod : FormMethod = FormMethod.post, contents: FormBuilder<P,M>.() -> Unit) {
@@ -53,17 +48,11 @@ class FormBuilder<in P, out M:FormModel<P>>(containingTag : HtmlBodyTag, val mod
     /** If true, the form will have enctype="multipart/form-data" */
     var hasFiles : Boolean = false
 
-    fun propertyValue(property: P) : String {
-        return model.propertyValue(property)
-    }
+    fun propertyValue(property: P) : String = model.propertyValue(property)
 
-    fun propertyName(property: P) : String {
-        return "${model.modelName()}[${model.propertyName(property)}]"
-    }
+    fun propertyName(property: P) : String = "${model.modelName()}[${model.propertyName(property)}]"
 
-    fun propertyId(property: P) : String {
-        return "form-${model.modelName()}-${model.propertyName(property)}"
-    }
+    fun propertyId(property: P) : String = "form-${model.modelName()}-${model.propertyName(property)}"
 
     /**
      * Creates a label element for the given property.

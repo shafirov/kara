@@ -18,7 +18,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 /** Tests for dispatching routes to get action info. */
-class DispatchTests() {
+class DispatchTests {
 
     @Test
     fun runDispatchTests() {

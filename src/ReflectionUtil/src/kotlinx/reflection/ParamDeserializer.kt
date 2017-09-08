@@ -11,7 +11,7 @@ import kotlin.reflect.full.primaryConstructor
 
 /** Base class for object that deserialize parameters to a certain type.
 */
-abstract class TypeSerializer<T:Any>() {
+abstract class TypeSerializer<T:Any> {
     abstract fun deserialize(param : String, paramType: KClass<out T>) : T?
     open fun serialize(param: T): String = param.toString()
 
@@ -20,42 +20,32 @@ abstract class TypeSerializer<T:Any>() {
 
 /** Deserializer for integers.
 */
-class IntSerializer() : TypeSerializer<Int>() {
+class IntSerializer : TypeSerializer<Int>() {
     override fun deserialize(param : String, paramType: KClass<out Int>) : Int? {
         if (param.isEmpty()) return null
         return param.toInt()
     }
 
-    override fun isThisType(testType : KClass<*>) : Boolean {
-        return testType == Int::class
-    }
+    override fun isThisType(testType : KClass<*>) : Boolean = testType == Int::class
 }
 
 /** Deserializer for floats.
 */
-class FloatSerializer() : TypeSerializer<Float>() {
+class FloatSerializer : TypeSerializer<Float>() {
     override fun deserialize(param : String, paramType: KClass<out Float>) : Float? {
         if (param.isEmpty()) return null
         return param.toFloat()
     }
 
-    override fun isThisType(testType : KClass<*>) : Boolean {
-        return testType == Float::class
-    }
+    override fun isThisType(testType : KClass<*>) : Boolean = testType == Float::class
 }
 
 class BooleanSerializer: TypeSerializer<Boolean>() {
-    override fun deserialize(param: String, paramType: KClass<out Boolean>): Boolean? {
-        return param.toBoolean()
-    }
+    override fun deserialize(param: String, paramType: KClass<out Boolean>): Boolean? = param.toBoolean()
 
-    override fun isThisType(testType: KClass<*>): Boolean {
-        return testType == Boolean::class
-    }
+    override fun isThisType(testType: KClass<*>): Boolean = testType == Boolean::class
 
-    override fun serialize(param: Boolean): String {
-        return if (param) "true" else "false"
-    }
+    override fun serialize(param: Boolean): String = if (param) "true" else "false"
 }
 
 class LongSerializer: TypeSerializer<Long>() {
@@ -64,9 +54,7 @@ class LongSerializer: TypeSerializer<Long>() {
         return param.toLong()
     }
 
-    override fun isThisType(testType : KClass<*>) : Boolean {
-        return testType == Long::class
-    }
+    override fun isThisType(testType : KClass<*>) : Boolean = testType == Long::class
 }
 
 class BigDecimalSerializer: TypeSerializer<BigDecimal>() {
@@ -75,24 +63,20 @@ class BigDecimalSerializer: TypeSerializer<BigDecimal>() {
         return BigDecimal(param)
     }
 
-    override fun isThisType(testType : KClass<*>) : Boolean {
-        return BigDecimal::class == testType
-    }
+    override fun isThisType(testType : KClass<*>) : Boolean = BigDecimal::class == testType
 }
 
 class EnumSerializer: TypeSerializer<Enum<*>>() {
-    override fun serialize(param: Enum<*>): String {
-        return param.ordinal.toString()
-    }
+    override fun serialize(param: Enum<*>): String = param.ordinal.toString()
 
     override fun deserialize(param: String, paramType: KClass<out Enum<*>>): Enum<*>? {
         val javaType = paramType.java
         return when {
             javaType.isEnum -> {
-                javaType.enumConstants.safeGet(param.toInt())
+                javaType.enumConstants.getOrNull(param.toInt())
             }
             javaType.isEnumClass() -> {
-                javaType.enclosingClass.enumConstants.safeGet(param.toInt()) as Enum<*>
+                javaType.enclosingClass.enumConstants.getOrNull(param.toInt()) as Enum<*>
             }
             else -> null
         }
@@ -108,17 +92,11 @@ class EnumSerializer: TypeSerializer<Enum<*>>() {
 interface DataClass
 
 class DataClassSerializer: TypeSerializer<DataClass>() {
-    override fun serialize(param: DataClass): String {
-        return param.serialize()
-    }
+    override fun serialize(param: DataClass): String = param.serialize()
 
-    override fun deserialize(param: String, paramType: KClass<out DataClass>): DataClass? {
-        return paramType.parse(param)
-    }
+    override fun deserialize(param: String, paramType: KClass<out DataClass>): DataClass? = paramType.parse(param)
 
-    override fun isThisType(testType: KClass<*>): Boolean {
-        return DataClass::class.java.isAssignableFrom(testType.java)
-    }
+    override fun isThisType(testType: KClass<*>): Boolean = DataClass::class.java.isAssignableFrom(testType.java)
 }
 
 private const val NULL_CHAR = "\u2400"
@@ -140,14 +118,8 @@ object ArraySerializer : TypeSerializer<Array<*>>() {
         }
     }
 
-    override fun serialize(param: Array<*>): String {
-        return param.map {
-            if (it == null)
-                NULL_CHAR
-            else {
-                Serialization.serialize(it)
-            }
-        }.joinToString(separator = RECORD_SEPARATOR_CHAR)
+    override fun serialize(param: Array<*>): String = param.joinToString(separator = RECORD_SEPARATOR_CHAR) {
+        if (it != null) Serialization.serialize(it).orEmpty() else NULL_CHAR
     }
 
     override fun isThisType(testType: KClass<*>): Boolean = testType.java.isArray
@@ -230,28 +202,20 @@ fun <T:Any> KClass<T>.parse(params: String) : T {
     return buildBeanInstance(map.mapValues { urlDecode(it.value) })
 }
 
-fun <T:Any> T.serialize(): String {
-    return this::class.primaryConstructor!!.parameters.map { it.name to propertyValue<T,Any>(it.name!!) }.
-            filter {it.second != null}.
-            map { "${it.first}=${urlEncode(Serialization.serialize(it.second)!!)}"}.
-            joinToString("&")
+fun <T:Any> T.serialize(): String =
+    this::class.primaryConstructor!!.parameters.map { it.name to propertyValue<T,Any>(it.name!!) }.
+            filter {it.second != null}.joinToString("&") {
+        "${it.first}=${urlEncode(Serialization.serialize(it.second)!!)}"
+    }
 
+fun urlEncode(value: String): String = try {
+    URLEncoder.encode(value, "UTF-8")
+} catch(e: Exception) {
+    value
 }
 
-fun urlEncode(value: String): String {
-    try {
-        return URLEncoder.encode(value, "UTF-8")
-    }
-    catch(e: Exception) {
-        return value
-    }
-}
-
-fun urlDecode(encoded: String): String {
-    try {
-        return URLDecoder.decode(encoded, "UTF-8")
-    }
-    catch(e: Exception) {
-        return encoded
-    }
+fun urlDecode(encoded: String): String = try {
+    URLDecoder.decode(encoded, "UTF-8")
+} catch(e: Exception) {
+    encoded
 }

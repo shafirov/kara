@@ -7,34 +7,34 @@ import java.util.*
 @Suppress("unused")
 object Home {
     @Get("/")
-    class Index() : Request({ kara.demo.views.Index() })
+    class Index : Request({ kara.demo.views.Index() })
 
     @Get("/test")
-    class Test() : Request({
+    class Test : Request({
         TextResult("This is a test action, yo")
     })
 
     @Get("/async")
-    class Async() : Request({
-        async() {
+    class Async : Request({
+        async {
             TextResult("This've been rendered async.")
         }
     })
 
     @Get("/crash")
-    class Crash() : Request({
+    class Crash : Request({
         error("This resource crashes")
     })
 
     @Post("/updatebook")
-    class Update() : Request({
+    class Update : Request({
         println("parameters:")
         println(params.getHash("book").toString())
         redirect("/forms")
     })
 
     @Get("/forms")
-    class Forms() : Request({
+    class Forms : Request({
         val book = Book("Ender's Game") {
             description = "This is an excellent book about a boy who gets drawn into an interstellar war."
             isPublished = true

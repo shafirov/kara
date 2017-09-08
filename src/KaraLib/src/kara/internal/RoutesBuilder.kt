@@ -19,13 +19,11 @@ fun KClass<*>.getKaraAnnotationFromSuper() = superclasses.find{ it.ok() }?.getKa
 
 private fun KAnnotatedElement.ok() = getKaraAnnotation() != null
 
-private fun KClass<*>.inheritAnnotatedInterfaceController() : Boolean {
-    return this.superclasses.any { it.isInterfaceController() && it.ok() } && this.isFinal
-}
+private fun KClass<*>.inheritAnnotatedInterfaceController() : Boolean =
+        this.superclasses.any { it.isInterfaceController() && it.ok() } && this.isFinal
 
-private fun KClass<*>.isInterfaceController() : Boolean {
-    return this.annotations.map { it.annotationClassCached }.contains(InterfaceController::class)
-}
+private fun KClass<*>.isInterfaceController() : Boolean =
+        this.annotations.map { it.annotationClassCached }.contains(InterfaceController::class)
 
 private fun List<KAnnotatedElement>.toResourceDescriptorWithInerited() : List<Pair<KAnnotatedElement, ResourceDescriptor>> {
     val descriptorList = ArrayList<Pair<KAnnotatedElement, ResourceDescriptor>>()

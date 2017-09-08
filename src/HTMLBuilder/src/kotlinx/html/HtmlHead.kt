@@ -37,8 +37,7 @@ fun HtmlTag.script(mimeType: String = "text/javascript", content: SCRIPTBLOCK.()
     tag.mimeType = mimeType
 }
 
-class HEAD(containingTag: HTML) : HtmlTag(containingTag, "head") {
-}
+class HEAD(containingTag: HTML) : HtmlTag(containingTag, "head")
 
 class META(containingTag: HEAD) : HtmlTag(containingTag, "meta") {
     var name: String by Attributes.name
@@ -75,5 +74,4 @@ class SCRIPTBLOCK(containingTag: HtmlTag) : HtmlTag(containingTag, "script") {
     }
 }
 
-class TITLE(containingTag: HEAD) : HtmlTag(containingTag, "title") {
-}
+class TITLE(containingTag: HEAD) : HtmlTag(containingTag, "title")

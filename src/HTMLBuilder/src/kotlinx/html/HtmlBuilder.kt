@@ -31,11 +31,9 @@ enum class ContentStyle {
     propagate
 }
 
-private fun HtmlElement.computeContentStyle(): ContentStyle {
-    return when (contentStyle) {
-        ContentStyle.block, ContentStyle.text -> contentStyle
-        ContentStyle.propagate -> if (children.all { it.computeContentStyle() == ContentStyle.text }) ContentStyle.text else ContentStyle.block
-    }
+private fun HtmlElement.computeContentStyle(): ContentStyle = when (contentStyle) {
+    ContentStyle.block, ContentStyle.text -> contentStyle
+    ContentStyle.propagate -> if (children.all { it.computeContentStyle() == ContentStyle.text }) ContentStyle.text else ContentStyle.block
 }
 
 fun html(content: HtmlBodyTag.() -> Unit) = buildString {
@@ -45,7 +43,7 @@ fun html(content: HtmlBodyTag.() -> Unit) = buildString {
 }
 
 fun String.htmlEscapeTo(builder: StringBuilder) {
-    this.forEach {
+    forEach {
         when(it) {
             '<' -> builder.append("&lt;")
             '>' -> builder.append("&gt;")
@@ -101,7 +99,7 @@ abstract class HtmlTag(containingTag: HtmlTag?, val tagName: String, val renderS
         }
         builder.append('>')
 
-        if (!indent.isNullOrEmpty()) {
+        if (!indent.isEmpty()) {
             builder.append("\n")
         }
     }
@@ -121,13 +119,9 @@ abstract class HtmlTag(containingTag: HtmlTag?, val tagName: String, val renderS
         attributes[name] = value
     }
 
-    fun hasAttribute(attributeName: String): Boolean {
-        return attributes.containsKey(attributeName)
-    }
+    fun hasAttribute(attributeName: String): Boolean = attributes.containsKey(attributeName)
 
-    operator fun get(attributeName: String): String? {
-        return attributes[attributeName]
-    }
+    operator fun get(attributeName: String): String? = attributes[attributeName]
 
     operator fun set(attName: String, attValue: String?) {
         attributes[attName] = attValue
@@ -200,6 +194,4 @@ class HtmlText(containingTag: HtmlTag?, private val text: String) : HtmlElement(
     }
 }
 
-class InvalidHtmlException(message: String) : RuntimeException(message) {
-
-}
+class InvalidHtmlException(message: String) : RuntimeException(message)

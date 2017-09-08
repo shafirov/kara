@@ -4,7 +4,7 @@ import org.junit.Test
 import kotlin.test.assertTrue
 
 
-class StyleTests() {
+class StyleTests {
     @Test fun styles() {
         val styleString = TestStylesheet.toString()
 

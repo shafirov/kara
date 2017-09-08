@@ -17,9 +17,8 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 
-fun HttpSession.getDescription() : String {
-    return this.attributeNames!!.toList().map { "$it: ${this.getAttribute(it)}" }.joinToString()
-}
+fun HttpSession.getDescription() : String =
+        this.attributeNames!!.toList().joinToString { "$it: ${this.getAttribute(it)}" }
 
 /** This contains information about the current rendering action.
  * An action context is provided by the dispatcher to the action result when it's rendered.
@@ -37,13 +36,9 @@ class ActionContext(val appContext: ApplicationContext,
 
     val startedAt : Long = System.currentTimeMillis()
 
-    fun redirect(link: Link): ActionResult {
-        return RedirectResult(link.href())
-    }
+    fun redirect(link: Link): ActionResult = RedirectResult(link.href())
 
-    fun redirect(url : String) : ActionResult {
-        return RedirectResult(url.appendContext())
-    }
+    fun redirect(url : String) : ActionResult = RedirectResult(url.appendContext())
 
     private fun Serializable.toBytes(): ByteArray {
         val baos = ByteArrayOutputStream()
@@ -51,24 +46,22 @@ class ActionContext(val appContext: ApplicationContext,
         return baos.toByteArray()
     }
 
-    private fun ByteArray.readObject(): Any? {
-        return CustomClassloaderObjectInputStream(inputStream(), appContext.classLoader).readObject()
-    }
+    private fun ByteArray.readObject(): Any? =
+            CustomClassloaderObjectInputStream(inputStream(), appContext.classLoader).readObject()
 
     fun toSession(key: String, value: Any?) {
         if (value !is Serializable?) error("Non serializable value to session: key=$key, value=$value")
         sessionCache[key] = value
     }
 
-    fun fromSession(key: String): Any? {
-        return if (sessionCache.keys.contains(key)) sessionCache[key] else sessionCache.getOrPut(key) {
+    fun fromSession(key: String): Any? =
+        if (sessionCache.containsKey(key)) sessionCache[key] else sessionCache.getOrPut(key) {
             val raw = session.getAttribute(key)
             when (raw) {
                 is ByteArray -> raw.readObject()
                 else -> raw
             }
         }
-    }
 
     fun flushSessionCache() {
         sessionCache.forEach { entry ->
@@ -115,11 +108,10 @@ class ActionContext(val appContext: ApplicationContext,
     }
 }
 
-class RequestScope<T:Any>(): ReadWriteProperty<Any?, T?> {
+class RequestScope<T:Any> : ReadWriteProperty<Any?, T?> {
     @Suppress("UNCHECKED_CAST")
-    override fun getValue(thisRef: Any?, property: KProperty<*>): T? {
-        return ActionContext.current().data[thisRef to property] as T?
-    }
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T? =
+            ActionContext.current().data[thisRef to property] as T?
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T?) {
         ActionContext.current().data.put(thisRef to property, value)
@@ -131,38 +123,31 @@ class LazyRequestScope<out T:Any>(val initial: () -> T): ReadOnlyProperty<Any?, 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T = ActionContext.current().data.getOrPut(thisRef to property, { initial() }) as T
 }
 
-class SessionScope<T:Any>(): ReadWriteProperty<Any?, T?> {
+class SessionScope<T:Any> : ReadWriteProperty<Any?, T?> {
     @Suppress("UNCHECKED_CAST")
-    override fun getValue(thisRef: Any?, property: KProperty<*>): T? {
-        return ActionContext.current().fromSession(property.name) as T?
-    }
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T? =
+            ActionContext.current().fromSession(property.name) as T?
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T?) {
         ActionContext.current().toSession(property.name, value)
     }
 }
 
-class LazySessionScope<out T:Any>(val initial: () -> T): ReadOnlyProperty<Any?, T> {
+class LazySessionScope<out T:Any>(private val initial: () -> T): ReadOnlyProperty<Any?, T> {
     private val store = SessionScope<T>()
 
-    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return store.getValue(thisRef, property) ?: run {
-            val i = initial()
-            store.setValue(thisRef, property, i)
-            i
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T =
+        store.getValue(thisRef, property) ?: initial().also {
+            store.setValue(thisRef, property, it)
         }
-    }
 }
 
 class ContextException(msg : String) : Exception(msg)
 
-fun <T> ActionContext.withContext(body: () -> T): T {
-    try {
-        ActionContext.contexts.set(this)
-        return body()
-    }
-    finally {
-        ActionContext.contexts.set(null)
-    }
+fun <T> ActionContext.withContext(body: () -> T): T = try {
+    ActionContext.contexts.set(this)
+    body()
+} finally {
+    ActionContext.contexts.set(null)
 }
 

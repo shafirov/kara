@@ -37,13 +37,11 @@ fun KAnnotatedElement.route(): ResourceDescriptor {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun KAnnotatedElement.route(annotation: Annotation): ResourceDescriptor {
-    return when {
-        this is KClass<*> && Resource::class.java.isAssignableFrom(this.java) ->
-            ResourceDescriptor.fromResourceClass(this as KClass<out Resource>, annotation)
-        this is FunctionWrapperResource -> ResourceDescriptor.fromFunction(this.func, annotation)
-        this is Resource -> ResourceDescriptor.fromResourceClass(this::class as KClass<out Resource>, annotation)
-        this is KFunction<*> -> ResourceDescriptor.fromFunction(this as KFunction<Any>, annotation)
-        else -> error("Unsupported type $this")
-    }
+fun KAnnotatedElement.route(annotation: Annotation): ResourceDescriptor = when {
+    this is KClass<*> && Resource::class.java.isAssignableFrom(this.java) ->
+        ResourceDescriptor.fromResourceClass(this as KClass<out Resource>, annotation)
+    this is FunctionWrapperResource -> ResourceDescriptor.fromFunction(this.func, annotation)
+    this is Resource -> ResourceDescriptor.fromResourceClass(this::class as KClass<out Resource>, annotation)
+    this is KFunction<*> -> ResourceDescriptor.fromFunction(this as KFunction<Any>, annotation)
+    else -> error("Unsupported type $this")
 }

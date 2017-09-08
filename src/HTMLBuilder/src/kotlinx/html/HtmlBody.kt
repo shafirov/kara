@@ -281,8 +281,7 @@ open class OPTION(containingTag: HtmlBodyTag) : HtmlBodyTag(containingTag, "opti
     var selected: Boolean by Attributes.selected
 }
 
-open class OPTGROUP(containingTag: HtmlBodyTag) : HtmlBodyTag(containingTag, "optgroup") {
-}
+open class OPTGROUP(containingTag: HtmlBodyTag) : HtmlBodyTag(containingTag, "optgroup")
 
 open class TEXTAREA(containingTag: HtmlBodyTag) : HtmlBodyTag(containingTag, "textarea") {
     var autofocus: Boolean by Attributes.autofocus

@@ -1,6 +1,6 @@
 package kotlinx.html
 
-open class HTML() : HtmlTag(null, "html") {
+open class HTML : HtmlTag(null, "html") {
 
     var doctype: String = "<!DOCTYPE html>"
 

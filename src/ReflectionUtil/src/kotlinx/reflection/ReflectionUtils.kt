@@ -41,9 +41,8 @@ fun <T:Any, R:Any?> T.propertyValue(property: String): R? {
 
 class MissingArgumentException(message: String) : RuntimeException(message)
 
-fun <T:Any> KClass<T>.buildBeanInstance(allParams: Map<String, String>): T {
-    return objectInstance ?: primaryConstructor!!.resolveAndCall(allParams, java.classLoader)
-}
+fun <T:Any> KClass<T>.buildBeanInstance(allParams: Map<String, String>): T =
+        objectInstance ?: primaryConstructor!!.resolveAndCall(allParams, java.classLoader)
 
 fun KCallable<*>.boundReceiver() = (this as? FunctionReference)?.boundReceiver ?:
         (parameters.find { it.kind == KParameter.Kind.INSTANCE && it.index == 0 }?.type?.classifier as? KClass<*>)?.objectInstance
@@ -68,19 +67,17 @@ fun <R:Any> KCallable<R>.resolveAndCall(allParams: Map<String, String>, classLoa
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun paramJavaType(javaType: Type): Class<Any> {
-    return when (javaType) {
-        is ParameterizedType -> paramJavaType(javaType.rawType)
-        is Class<*> -> javaType as Class<Any>
-        else -> error("Unsupported type")
-    }
+private fun paramJavaType(javaType: Type): Class<Any> = when (javaType) {
+    is ParameterizedType -> paramJavaType(javaType.rawType)
+    is Class<*> -> javaType as Class<Any>
+    else -> error("Unsupported type")
 }
 
 fun Class<*>.isEnumClass(): Boolean = Enum::class.java.isAssignableFrom(this)
 
 fun ClassLoader.findClasses(prefix: String, cache: MutableMap<Pair<Int, String>, List<Class<*>>>) : List<Class<*>> {
-    synchronized(cache) {
-        return cache.getOrPut(this.hashCode() to prefix) {
+    return synchronized(cache) {
+        cache.getOrPut(this.hashCode() to prefix) {
             scanForClasses(prefix)
         }
     }
@@ -100,11 +97,9 @@ fun ClassLoader.scanForClasses(prefix: String) : List<Class<*>> {
     return clazzz
 }
 
-private fun URL.scanForClasses(prefix: String = "", classLoader: ClassLoader): List<Class<*>> {
-    return when (protocol) {
-        "jar" -> JarFile(urlDecode(toExternalForm().substringAfter("file:").substringBeforeLast("!"))).scanForClasses(prefix, classLoader)
-        else -> File(urlDecode(path)).scanForClasses(prefix, classLoader)
-    }
+private fun URL.scanForClasses(prefix: String = "", classLoader: ClassLoader): List<Class<*>> = when (protocol) {
+    "jar" -> JarFile(urlDecode(toExternalForm().substringAfter("file:").substringBeforeLast("!"))).scanForClasses(prefix, classLoader)
+    else -> File(urlDecode(path)).scanForClasses(prefix, classLoader)
 }
 
 private fun String.packageToPath() = replace(".", File.separator) + File.separator
@@ -172,7 +167,3 @@ fun <T> Iterable<Class<*>>.filterIsAssignable(clazz: Class<T>): List<Class<T>> =
 
 @Suppress("UNCHECKED_CAST")
 inline fun <reified T: Any> Iterable<Class<*>>.filterIsAssignable(): List<Class<T>> = filterIsAssignable(T::class.java)
-
-fun <T:Any?> Array<T>.safeGet(index: Int): T? {
-    return if (index in this.indices) this[index] else null
-}

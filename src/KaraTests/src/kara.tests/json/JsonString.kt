@@ -3,7 +3,7 @@ import kara.jsonString
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class JsonQuotationTest() {
+class JsonQuotationTest {
 
     @Test fun testSimpleString() {
         val SAMPLE = "Hello World"

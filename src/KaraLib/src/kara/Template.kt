@@ -2,11 +2,11 @@ package kara
 
 import java.util.*
 
-abstract class Template<in TOuter>() {
+abstract class Template<in TOuter> {
     abstract fun TOuter.render()
 }
 
-open class TemplatePlaceholder<TOuter, TTemplate>() {
+open class TemplatePlaceholder<TOuter, TTemplate> {
     private var content: (TTemplate.() -> Unit)? = null
     operator fun invoke(content: TTemplate.() -> Unit) {
         this.content = content
@@ -19,7 +19,7 @@ open class TemplatePlaceholder<TOuter, TTemplate>() {
     fun isEmpty(): Boolean = content == null
 }
 
-open class Placeholder<TOuter>() {
+open class Placeholder<TOuter> {
     private var content: (TOuter.(Placeholder<TOuter>) -> Unit)? = null
     var meta : String = ""
 
@@ -40,7 +40,7 @@ class PlaceholderItem<TOuter>(val index: Int, val collection: List<PlaceholderIt
     val last: Boolean get() = index == collection.size
 }
 
-open class Placeholders<TOuter, TInner>() {
+open class Placeholders<TOuter, TInner> {
     private var items = ArrayList<PlaceholderItem<TInner>>()
     operator fun invoke(meta : String = "", content: TInner.(Placeholder<TInner>) -> Unit = {}) {
         val placeholder = PlaceholderItem(items.size, items)
@@ -56,11 +56,11 @@ open class Placeholders<TOuter, TInner>() {
     }
 }
 
-fun <TOuter, TInner> TOuter.each(items: Placeholders<TOuter, TInner>, itemTemplate: TOuter.(PlaceholderItem<TInner>) -> Unit): Unit {
+fun <TOuter, TInner> TOuter.each(items: Placeholders<TOuter, TInner>, itemTemplate: TOuter.(PlaceholderItem<TInner>) -> Unit) {
     with(items) { render(itemTemplate) }
 }
 
-fun <TOuter> TOuter.insert(placeholder: Placeholder<TOuter>): Unit = with(placeholder) { render() }
+fun <TOuter> TOuter.insert(placeholder: Placeholder<TOuter>) = with(placeholder) { render() }
 
 fun <TTemplate : Template<TOuter>, TOuter> TOuter.insert(template: TTemplate, placeholder: TemplatePlaceholder<TOuter, TTemplate>) {
     with(placeholder) { template.render() }

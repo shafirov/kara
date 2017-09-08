@@ -7,7 +7,7 @@ import javax.servlet.ServletOutputStream
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 
-class MockHttpServletResponse() : HttpServletResponse {
+class MockHttpServletResponse : HttpServletResponse {
 
     val _outSteam = ByteArrayOutputStream()
     var _status = HttpServletResponse.SC_OK

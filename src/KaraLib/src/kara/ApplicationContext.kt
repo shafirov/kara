@@ -115,15 +115,14 @@ class ApplicationContext(val config: ApplicationConfig,
         }
 
 
-    fun scanPackageForMonitors(prefix: String): List<Class<ApplicationContextMonitor>> {
-        try {
-            return classLoader.findClasses(prefix, reflectionCache).filterIsAssignable<ApplicationContextMonitor>().
-                    filter { !Modifier.isAbstract(it.modifiers) }.distinct()
-        }
-        catch(e: Throwable) {
-            e.printStackTrace()
-            return listOf()
-        }
+    fun scanPackageForMonitors(prefix: String): List<Class<ApplicationContextMonitor>> = try {
+        classLoader.findClasses(prefix, reflectionCache).
+                filterIsAssignable<ApplicationContextMonitor>().
+                filter { !Modifier.isAbstract(it.modifiers) }.
+                distinct()
+    } catch(e: Throwable) {
+        e.printStackTrace()
+        listOf()
     }
 
     companion object {

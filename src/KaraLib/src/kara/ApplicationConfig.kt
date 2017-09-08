@@ -34,13 +34,13 @@ open class ApplicationConfig(val appClassloader: ClassLoader) : Config() {
         get() = this["kara.appPackage"]
 
     private val _publicDirectories by lazy {
-        readPublicDirProperty().map {
+        readPublicDirProperty().mapNotNull {
             val dirPath = it.trim()
             val dir = File(dirPath)
             val context = ActionContext.current().request.servletContext
             if ((dir.parent == null || !dir.isDirectory) && context != null) {
                 logger.info("Can't find public dir $dirPath. Trying to resolve it via servlet context.")
-                return@map context.getRealPath(dirPath)?.let { path ->
+                return@mapNotNull context.getRealPath(dirPath)?.let { path ->
                     if (File(path).isDirectory) {
                         path
                     } else {
@@ -50,7 +50,7 @@ open class ApplicationConfig(val appClassloader: ClassLoader) : Config() {
                 }
             }
             it
-        }.filterNotNull().orEmpty()
+        }
     }
     /** Directories where publicly available files (like stylesheets, scripts, and images) will go. */
     val publicDirectories: List<String>

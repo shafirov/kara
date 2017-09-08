@@ -44,9 +44,9 @@ class MockHttpServletRequest(method : String, url : String) : HttpServletRequest
     override fun authenticate(p0 : javax.servlet.http.HttpServletResponse?) : Boolean {
         return false
     }
-    override fun logout() : Unit {
+    override fun logout()  {
     }
-    override fun login(p0 : String?, p1 : String?) : Unit {
+    override fun login(p0 : String?, p1 : String?)  {
     }
     override fun getAsyncContext() : javax.servlet.AsyncContext? {
         throw UnsupportedOperationException()

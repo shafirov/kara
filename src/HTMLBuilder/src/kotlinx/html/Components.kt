@@ -1,13 +1,13 @@
 package kotlinx.html
 
-fun StyledElement.roundBorder(width: LinearDimension, color: Color, radius : LinearDimension): Unit {
+fun StyledElement.roundBorder(width: LinearDimension, color: Color, radius : LinearDimension) {
     attributes["border"] = "$width solid $color"
     attributes["-webkit-border-radius"] = radius
     attributes["-moz-border-radius"] = radius
     attributes["border-radius"] = radius
 
 }
-fun StyledElement.gradient(): Unit {
+fun StyledElement.gradient() {
     attributes["background"] = c("#feffff")
     attributes["background"] = "-moz-linear-gradient(top,  #feffff 0%, #e5e1dc 100%); /* FF3.6+ */"
     attributes["background"] = "-webkit-gradient(linear, left top, left bottom, color-stop(0%,#feffff), color-stop(100%,#e5e1dc)); /* Chrome,Safari4+ */"
@@ -18,7 +18,7 @@ fun StyledElement.gradient(): Unit {
     attributes["filter"] = "progid:DXImageTransform.Microsoft.gradient( startColorstr='#feffff', endColorstr='#e5e1dc',GradientType=0 ); /* IE6-9 */"
 }
 
-fun StyledElement.shadow(color : String, shift : Int = 1, strength : Int = 3): Unit {
+fun StyledElement.shadow(color : String, shift : Int = 1, strength : Int = 3) {
     attributes["-moz-box-shadow"] = "0px ${shift}px ${strength}px $color"
     attributes["-webkit-box-shadow"] = "0px ${shift}px ${strength}px $color"
     attributes["box-shadow"] = "0px ${shift}px ${strength}px $color"

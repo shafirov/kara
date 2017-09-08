@@ -4,9 +4,9 @@ import kara.link
 import kotlinx.html.*
 import java.util.*
 
-inline fun HtmlBodyTag.pills(body: UL.()->Unit): Unit = ul("nav nav-pills", contents = body)
-inline fun HtmlBodyTag.content(body: DIV.()->Unit): Unit = div("tab-content", contents = body)
-fun HtmlBodyTag.pane(name: String, active: Boolean = false, body: DIV.()->Unit): Unit = div {
+inline fun HtmlBodyTag.pills(body: UL.()->Unit) = ul("nav nav-pills", contents = body)
+inline fun HtmlBodyTag.content(body: DIV.()->Unit) = div("tab-content", contents = body)
+fun HtmlBodyTag.pane(name: String, active: Boolean = false, body: DIV.()->Unit) = div {
     addClass("tab-pane")
     if (active)
         addClass("active")
@@ -14,9 +14,9 @@ fun HtmlBodyTag.pane(name: String, active: Boolean = false, body: DIV.()->Unit):
     body()
 }
 
-fun HtmlBodyTag.tabs(body: UL.()->Unit): Unit = ul("nav nav-tabs", contents = body)
+fun HtmlBodyTag.tabs(body: UL.()->Unit) = ul("nav nav-tabs", contents = body)
 
-class PagesBuilder() {
+class PagesBuilder {
     class Item(val id: String, val title: String, val content: HtmlBodyTag.() -> Unit)
 
     val items = ArrayList<Item>()

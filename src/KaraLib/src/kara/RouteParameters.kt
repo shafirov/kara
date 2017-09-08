@@ -5,15 +5,13 @@ import kotlinx.reflection.RECORD_SEPARATOR_CHAR
 import java.util.*
 
 /** Contains all of the parameters for a matched route. */
-class RouteParameters() {
+class RouteParameters {
     internal val _map = HashMap<String, String>()
     internal val _list = ArrayList<String>()
 
     fun parameterNames() = _map.keys.toList()
     /** Gets a named parameter by name */
-    operator fun get(name : String) : String? {
-        return _map[name]
-    }
+    operator fun get(name : String) : String? = _map[name]
 
     /** Sets a named parameter */
     operator fun set(name : String, value : String) {
@@ -26,9 +24,7 @@ class RouteParameters() {
     }
 
     /** Gets an unnamed parameter by index */
-    operator fun get(i : Int) : String? {
-        return _list[i]
-    }
+    operator fun get(i : Int) : String? = _list[i]
 
     /** Sets an unnamed parameter */
     operator fun set(i : Int, value : String) {
@@ -41,9 +37,7 @@ class RouteParameters() {
     }
 
     /** Returns the total number of parameters */
-    fun size() : Int {
-        return _list.size
-    }
+    fun size() : Int = _list.size
 
     /** Gets a hash with the nested values of the given name. */
     fun getHash(name : String) : HashMap<String,String> {
@@ -60,35 +54,21 @@ class RouteParameters() {
         return map
     }
 
-    override fun toString() : String {
-        val pairs = _map.map { it ->
-            "${it.key}: ${it.value}"
+    override fun toString() : String =
+        _map.toList().joinToString(", ") { (key, value) ->
+            "$key: $value"
         }
-        return pairs.joinToString(", ")
-    }
 
-    fun optIntParam(name: String): Int? {
-        try {
-            val text = optStringParam(name) ?: return null
-            return text.toInt()
-        } catch(e: NumberFormatException) {
-            return null
-        }
-    }
+    fun optIntParam(name: String): Int? = optStringParam(name)?.toIntOrNull()
 
-    fun intParam(name: String): Int {
-        return optIntParam(name) ?: throw MissingArgumentException("Required int argument $name is missing")
-    }
 
-    fun stringParam(name: String): String {
-        return optStringParam(name) ?: throw MissingArgumentException("Required string argument $name is missing")
-    }
+    fun intParam(name: String): Int =
+            optIntParam(name) ?: throw MissingArgumentException("Required int argument $name is missing")
 
-    fun optStringParam(name: String): String? {
-        return this[name]
-    }
+    fun stringParam(name: String): String =
+            optStringParam(name) ?: throw MissingArgumentException("Required string argument $name is missing")
 
-    fun optListParam(name: String): List<String>? {
-        return this[name]?.split(RECORD_SEPARATOR_CHAR)
-    }
+    fun optStringParam(name: String): String? = this[name]
+
+    fun optListParam(name: String): List<String>? = this[name]?.split(RECORD_SEPARATOR_CHAR)
 }

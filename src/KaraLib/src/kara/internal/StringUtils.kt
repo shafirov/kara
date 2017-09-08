@@ -7,9 +7,7 @@ private val camelPattern = Pattern.compile("(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])
 /**
  * Decamelizes the string. i.e. "myCamelString".decamel() -> "my camel string"
  */
-fun String.decamel() : String {
-    return camelPattern.matcher(this).replaceAll(" ")
-}
+fun String.decamel() : String = camelPattern.matcher(this).replaceAll(" ")
 
 fun String.partition(char: Char) : Pair<String, String> {
     val idx = indexOf(char)

@@ -10,7 +10,7 @@ import javax.naming.Context
 import javax.naming.InitialContext
 import javax.naming.NamingException
 
-open class Config() {
+open class Config {
     class MissingException(desc: String) : RuntimeException(desc)
 
     protected val data = LinkedHashMap<String, String>()
@@ -20,14 +20,11 @@ open class Config() {
      * Gets the value for the given key.
      * Will raise an exception if the value isn't present. Try calling contains(key) first if you're unsure.
      */
-    operator fun get(name: String): String {
-        return tryGet(name) ?: throw MissingException("Could not find config value for key $name")
-    }
+    operator fun get(name: String): String =
+            tryGet(name) ?: throw MissingException("Could not find config value for key $name")
 
-    fun tryGet(name: String): String? {
-        return lookupCache(name) {
-            lookupJNDI(name) ?: data[name]
-        }
+    fun tryGet(name: String): String? = lookupCache(name) {
+        lookupJNDI(name) ?: data[name]
     }
 
     private fun lookupCache(name: String, eval: (String) -> String?): String? {
@@ -46,9 +43,7 @@ open class Config() {
     }
 
     /** Returns true if the config contains a value for the given key. */
-    fun contains(name: String): Boolean {
-        return data.containsKey(name) || lookupJNDI(name) != null
-    }
+    fun contains(name: String): Boolean = data.containsKey(name) || lookupJNDI(name) != null
 
     /** Prints the entire config to a nicely formatted string. */
     override fun toString(): String = buildString {
@@ -57,25 +52,19 @@ open class Config() {
         }
     }
 
-    private fun lookupJNDI(name: String): String? {
-        try {
-            val initCtx = InitialContext()
-            val envCtx = initCtx.lookup("java:comp/env") as Context
-
-            val folder = envCtx.lookup(name)
-            return (folder as String)
-        } catch(e: NamingException) {
-            return null
-        }
+    private fun lookupJNDI(name: String): String? = try {
+        val envCtx = InitialContext().lookup("java:comp/env") as Context
+        envCtx.lookup(name) as String
+    } catch(e: NamingException) {
+        null
     }
 
     companion object {
         val logger = LoggerFactory.getLogger(Config::class.java)!!
 
         fun readConfig(config: Config, path: String, classloader: ClassLoader, baseFile: File? = null) {
-            fun eval(name: String): String {
-                return config.tryGet(name) ?: System.getProperty(name) ?: System.getenv(name) ?: error("$name is not defined")
-            }
+            fun eval(name: String): String =
+                    config.tryGet(name) ?: System.getProperty(name) ?: System.getenv(name) ?: error("$name is not defined")
 
             val resolvedPath = evalVars(path, ::eval)
 
