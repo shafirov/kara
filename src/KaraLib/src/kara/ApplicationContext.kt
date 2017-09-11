@@ -11,7 +11,6 @@ import java.lang.reflect.Modifier
 import java.net.SocketException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import kotlin.collections.ArrayList
 import kotlin.reflect.KAnnotatedElement
 
 /** Current application execution context
@@ -24,6 +23,7 @@ class ApplicationContext(val config: ApplicationConfig,
     val logger = LoggerFactory.getLogger(this.javaClass)!!
     private val interceptors = ArrayList<Interceptor>()
     private val monitorInstances = ArrayList<ApplicationContextMonitor>()
+    private val maskedParameterNames = config.tryGet("kara.parameters.logging.masked")?.split(",")?.map { it.trim() }.orEmpty()
 
     val version: Int = ++versionCounter
 
@@ -55,7 +55,19 @@ class ApplicationContext(val config: ApplicationConfig,
 
     fun dispatch(request: HttpServletRequest, response: HttpServletResponse): Boolean {
 
-        fun formatLogErrorMsg(error: String, req: HttpServletRequest) = "$error processing ${req.method} ${req.requestURI}. User agent: ${req.getHeader("User-Agent")}, Referer: ${req.getHeader("Referer")}"
+        fun formatLogErrorMsg(error: String, req: HttpServletRequest) : String {
+            val paramAndValues = req.parameterMap.toList().
+                    joinToString(prefix = "{", postfix = "}") { (name, value) ->
+                        val valueStr = when {
+                            name in maskedParameterNames -> "*****"
+                            value.size == 1 -> value[0]
+                            else -> value.joinToString(prefix = "[", postfix = "]", separator = ",")
+                        }
+                        "$name: $valueStr"
+            }
+            return "$error processing ${req.method} ${req.requestURL}, parameters=$paramAndValues, " +
+                    "User agent: ${req.getHeader("User-Agent")}, Referer: ${req.getHeader("Referer")}"
+        }
 
         fun dispatch(index: Int, request: HttpServletRequest, response: HttpServletResponse, resourceDescriptor: ResourceDescriptor?): Boolean {
             return if (index in interceptors.indices) {
