@@ -99,8 +99,8 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
 
                     val requestAllowed by lazy {
                         val allowedOrigin = when {
-                            origin.isNullOrBlank() -> null
                             allowCrossOrigin!! == "*" -> "*"
+                            origin.isNullOrBlank() -> null
                             allowCrossOrigin.split(" ").any {
                                 when {
                                     it.startsWith("http://") || it.startsWith("https://") -> it.equals(origin, true)
