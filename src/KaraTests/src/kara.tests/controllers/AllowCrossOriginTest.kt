@@ -58,6 +58,7 @@ class AllowCrossOriginTest {
         assertEquals(HttpServletResponse.SC_FORBIDDEN, status)
     }
 
+    private val emptyOrigin = ""
     private val testComOrigin = "http://www.test.com"
     private val subdomainTestComOrigin = "https://www.subdomain.test.com"
     private val wrongSubdomainTestComOrigin = "https://Asubdomain.test.com"
@@ -67,6 +68,7 @@ class AllowCrossOriginTest {
 
     @Test
     fun test() {
+        assertURL("/cross/no-origin", emptyOrigin, "")
         assertURL("/cross/no-origin", testComOrigin, "")
         assertURL("/cross/no-origin", subdomainTestComOrigin, "")
         assertURL("/cross/no-origin", testComSecureOrigin, "")
@@ -74,6 +76,7 @@ class AllowCrossOriginTest {
         assertURL("/cross/no-origin", testOrgOrigin, "")
 
         CrossOriginRoutes.AllAllowedCrossOrigin.let { route ->
+            assertRoute(route, emptyOrigin, "*")
             assertRoute(route, testComOrigin, "*")
             assertRoute(route, subdomainTestComOrigin, "*")
             assertRoute(route, testComSecureOrigin, "*")
@@ -82,6 +85,7 @@ class AllowCrossOriginTest {
         }
 
         CrossOriginRoutes.FullQualifiedSingleOrigin.let { route ->
+            assertRouteError(route, emptyOrigin)
             assertRoute(route, testComOrigin, testComOrigin)
             assertRouteError(route, subdomainTestComOrigin)
             assertRouteError(route, testComSecureOrigin)
@@ -90,6 +94,7 @@ class AllowCrossOriginTest {
         }
 
         CrossOriginRoutes.FullQualifiedSingleSecureOrigin.let { route ->
+            assertRouteError(route, emptyOrigin)
             assertRouteError(route, testComOrigin)
             assertRouteError(route, subdomainTestComOrigin)
             assertRoute(route, testComSecureOrigin, testComSecureOrigin)
@@ -98,6 +103,7 @@ class AllowCrossOriginTest {
         }
 
         CrossOriginRoutes.FullQualifiedMultipleOrigins.let { route ->
+            assertRouteError(route, emptyOrigin)
             assertRoute(route, testComOrigin, testComOrigin)
             assertRouteError(route, subdomainTestComOrigin)
             assertRoute(route, testComSecureOrigin, testComSecureOrigin)
@@ -106,6 +112,7 @@ class AllowCrossOriginTest {
         }
 
         CrossOriginRoutes.DomainOnlyShortSingleOrigin.let { route ->
+            assertRouteError(route, emptyOrigin)
             assertRoute(route, testComOrigin, testComOrigin)
             assertRoute(route, subdomainTestComOrigin, subdomainTestComOrigin)
             assertRoute(route, testComSecureOrigin, testComSecureOrigin)
@@ -114,6 +121,7 @@ class AllowCrossOriginTest {
         }
 
         CrossOriginRoutes.DomainOnlyShortSingleOrigin.let { route ->
+            assertRouteError(route, emptyOrigin)
             assertRoute(route, testComOrigin, testComOrigin)
             assertRoute(route, subdomainTestComOrigin, subdomainTestComOrigin)
             assertRoute(route, testComSecureOrigin, testComSecureOrigin)
@@ -122,6 +130,7 @@ class AllowCrossOriginTest {
         }
 
         CrossOriginRoutes.SubDomainOnlyShortSingleOrigin.let { route ->
+            assertRouteError(route, emptyOrigin)
             assertRouteError(route, testComOrigin)
             assertRoute(route, subdomainTestComOrigin, subdomainTestComOrigin)
             assertRoute(route, subdomainTestComOrigin.replace("www.", ""), subdomainTestComOrigin.replace("www.", ""))
@@ -132,6 +141,7 @@ class AllowCrossOriginTest {
         }
 
         CrossOriginRoutes.DomainOnlyShortMultipleOrigin.let { route ->
+            assertRouteError(route, emptyOrigin)
             assertRoute(route, testComOrigin, testComOrigin)
             assertRoute(route, subdomainTestComOrigin, subdomainTestComOrigin)
             assertRoute(route, subdomainTestComOrigin.replace("www.", ""), subdomainTestComOrigin.replace("www.", ""))
