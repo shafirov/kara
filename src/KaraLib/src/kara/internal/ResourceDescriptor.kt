@@ -114,7 +114,7 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
                         allowedOrigin?.let {
                             response.addHeader(ALLOW_CROSS_ORIGIN_HEADER, it)
                         }
-                        allowedOrigin != null
+                        allowedOrigin != null || allowCrossOrigin == "*"
                     }
                     try {
                         if (!allowCrossOrigin.isNullOrBlank() && !requestAllowed) {
