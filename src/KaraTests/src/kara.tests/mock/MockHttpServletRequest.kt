@@ -12,13 +12,15 @@ import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpSession
 import javax.servlet.http.HttpUpgradeHandler
+import kotlin.collections.ArrayList
 
 
 class MockHttpServletRequest(method : String, url : String) : HttpServletRequest {
 
-    var _method : String = method
-    var _url : String = url
+    private var _method : String = method
+    private var _url : String = url
     private val params = Hashtable<String,String>()
+    private val headers = ArrayList<Pair<String, String>>()
 
     init {
         url.split('?').getOrNull(1)?.split('&')?.map{ urlDecode(it).partition('=') }?.groupBy { it.first }?.forEach {
@@ -71,20 +73,18 @@ class MockHttpServletRequest(method : String, url : String) : HttpServletRequest
         throw UnsupportedOperationException()
     }
 
-    val session = MockHttpSession()
+    private val session = MockHttpSession()
 
-    override fun getSession(p0 : Boolean) : HttpSession? {
-        return session
-    }
-    override fun getHeaders(p0 : String?) : Enumeration<String>? {
-        throw UnsupportedOperationException()
-    }
+    override fun getSession(p0 : Boolean) : HttpSession? =        session
+
+    override fun getHeaders(p0 : String?) : Enumeration<String>? =
+        p0?.let { Collections.enumeration(headers.filter { it.first.equals(p0, true) }.map { it.second }) }
+
     override fun isRequestedSessionIdFromCookie() : Boolean {
         throw UnsupportedOperationException()
     }
-    override fun getHeaderNames() : Enumeration<String>? {
-        throw UnsupportedOperationException()
-    }
+    override fun getHeaderNames() : Enumeration<String>? = Collections.enumeration(headers.map { it.first }.distinct())
+
     override fun getRemoteUser() : String? {
         throw UnsupportedOperationException()
     }
@@ -124,18 +124,18 @@ class MockHttpServletRequest(method : String, url : String) : HttpServletRequest
     override fun getContextPath() : String? {
         return ""
     }
-    override fun getIntHeader(p0 : String?) : Int {
-        throw UnsupportedOperationException()
-    }
+    override fun getIntHeader(p0 : String?) : Int = getHeader(p0)?.toIntOrNull() ?: -1
+    
     override fun getDateHeader(p0 : String?) : Long {
         throw UnsupportedOperationException()
     }
     override fun getAuthType() : String? {
         throw UnsupportedOperationException()
     }
-    override fun getHeader(p0 : String?) : String? {
-        return null
-    }
+    
+    fun addHeader(header: String, value: String) = headers.add(header to value)
+    
+    override fun getHeader(p0 : String?) : String? = headers.firstOrNull { it.first.equals(p0, true) }?.second
 
     override fun isRequestedSessionIdFromURL() : Boolean {
         throw UnsupportedOperationException()

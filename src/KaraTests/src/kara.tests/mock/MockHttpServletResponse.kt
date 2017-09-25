@@ -6,12 +6,14 @@ import java.util.*
 import javax.servlet.ServletOutputStream
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
+import kotlin.collections.ArrayList
 
 class MockHttpServletResponse : HttpServletResponse {
 
     val _outSteam = ByteArrayOutputStream()
     var _status = HttpServletResponse.SC_OK
     var _contentType : String? = null
+    val headers = ArrayList<Pair<String, String>>()
 
     fun stringOutput() : String? {
         _outSteam.flush()
@@ -53,9 +55,8 @@ class MockHttpServletResponse : HttpServletResponse {
     override fun setIntHeader(p0 : String?, p1 : Int) {
         throw UnsupportedOperationException()
     }
-    override fun getHeader(p0 : String?) : String? {
-        throw UnsupportedOperationException()
-    }
+    override fun getHeader(p0 : String?) : String? = headers.find { it.first == p0 }?.second
+    
     override fun addDateHeader(p0 : String?, p1 : Long) {
         throw UnsupportedOperationException()
     }
@@ -72,19 +73,20 @@ class MockHttpServletResponse : HttpServletResponse {
         throw UnsupportedOperationException()
     }
     override fun setHeader(p0 : String?, p1 : String?) {
-        throw UnsupportedOperationException()
+        p0?.let { headers.add(it to p1.orEmpty()) }
     }
+
     override fun encodeRedirectURL(p0 : String?) : String? {
         throw UnsupportedOperationException()
     }
     override fun addHeader(p0 : String?, p1 : String?) {
-        throw UnsupportedOperationException()
+        setHeader(p0, p1)
     }
     override fun addIntHeader(p0 : String?, p1 : Int) {
         throw UnsupportedOperationException()
     }
     override fun getHeaders(p0 : String?) : MutableCollection<String>? {
-        throw UnsupportedOperationException()
+        return headers.map { it.second }.toMutableList()
     }
     override fun setDateHeader(p0 : String?, p1 : Long) {
         throw UnsupportedOperationException()

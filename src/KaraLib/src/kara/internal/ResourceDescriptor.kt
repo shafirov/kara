@@ -95,12 +95,34 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
                 allowCrossOrigin == "" && params.optListParam(ActionContext.SESSION_TOKEN_PARAMETER)?.distinct()?.singleOrNull() != actionContext.sessionToken() ->
                     ErrorResult(403, "This request is only valid within same origin")
                 else -> {
-                    if(!allowCrossOrigin.isNullOrEmpty()) {
-                        response.addHeader("Access-Control-Allow-Origin", allowCrossOrigin)
+                    val origin = request.getHeader("origin")
+
+                    val requestAllowed by lazy {
+                        val allowedOrigin = when {
+                            origin.isNullOrBlank() -> null
+                            allowCrossOrigin!! == "*" -> "*"
+                            allowCrossOrigin.split(" ").any {
+                                when {
+                                    it.startsWith("http://") || it.startsWith("https://") -> it.equals(origin, true)
+                                    else -> {
+                                        "http(s)?://(.+.)?${Regex.escapeReplacement(it.trim())}[/]?\$".toRegex(RegexOption.IGNORE_CASE).matches(origin)
+                                    }
+                                }
+                            } -> origin
+                            else -> null
+                        }
+                        allowedOrigin?.let {
+                            response.addHeader(ALLOW_CROSS_ORIGIN_HEADER, it)
+                        }
+                        allowedOrigin != null
                     }
                     try {
-                        resource.handle(actionContext)
-                    } catch (e : ResultWithCodeException) {
+                        if (!allowCrossOrigin.isNullOrBlank() && !requestAllowed) {
+                            ErrorResult(HttpServletResponse.SC_FORBIDDEN, "Origin '$origin' is not allowed.")
+                        } else {
+                            resource.handle(actionContext)
+                        }
+                    } catch (e: ResultWithCodeException) {
                         TextResult(Serialization.serialize(e.result).orEmpty(), e.code)
                     }
                 }
@@ -111,14 +133,16 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
     }
 
     companion object {
-        fun fromResourceClass(clazz : KClass<out Resource>, ann : Annotation) : ResourceDescriptor {
+        const val ALLOW_CROSS_ORIGIN_HEADER = "Access-Control-Allow-Origin"
+
+        fun fromResourceClass(clazz: KClass<out Resource>, ann: Annotation): ResourceDescriptor {
             val (method, crossOrigin, route) = extractFromAnnotation(ann)
             val resolvedRoute = clazz.java.enclosingClass?.routePrefix().orEmpty()
                     .appendPathElement(route.replace("#", clazz.simpleName!!.toLowerCase()))
             return ResourceDescriptor(method, resolvedRoute, clazz, { clazz.buildBeanInstance(it) }, crossOrigin)
         }
 
-        fun fromFunction(func : KFunction<Any>, ann: Annotation) : ResourceDescriptor {
+        fun fromFunction(func: KFunction<Any>, ann: Annotation): ResourceDescriptor {
             val (method, crossOrigin, route) = extractFromAnnotation(ann)
             val resolvedRoute = func.boundReceiver()?.javaClass?.routePrefix().orEmpty()
                     .appendPathElement(route.replace("#", func::class.simpleName!!.toLowerCase()))

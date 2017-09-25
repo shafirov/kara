@@ -64,13 +64,13 @@ fun scanObjects(objects : Array<Any>, classloader: ClassLoader? = null) : List<P
     fun scan(routesObject : Any) {
         val newClass = classloader?.loadClass(routesObject.javaClass.name) ?: routesObject.javaClass
         for (innerClass in newClass.declaredClasses) {
-            (innerClass as Class<Any>).kotlinCached.objectInstance?.let {
+            val kotlinCached = innerClass.kotlinCached
+            kotlinCached.objectInstance?.let {
                 scan(it)
-            } ?: run {
-                if ((innerClass.kotlinCached.ok() && !innerClass.kotlinCached.isInterfaceController()) ||
-                        (innerClass.kotlinCached.inheritAnnotatedInterfaceController())) {
-                    answer.add(innerClass.kotlinCached to innerClass.kotlinCached.route())
-                }
+            }
+            if ((kotlinCached.ok() && kotlinCached.getKaraAnnotation() !is Location && !kotlinCached.isInterfaceController()) ||
+                    (kotlinCached.inheritAnnotatedInterfaceController())) {
+                answer.add(kotlinCached to kotlinCached.route())
             }
         }
 
