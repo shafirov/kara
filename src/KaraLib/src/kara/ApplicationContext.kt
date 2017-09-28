@@ -23,7 +23,7 @@ class ApplicationContext(val config: ApplicationConfig,
     val logger = LoggerFactory.getLogger(this.javaClass)!!
     private val interceptors = ArrayList<Interceptor>()
     private val monitorInstances = ArrayList<ApplicationContextMonitor>()
-    private val maskedParameterNames = config.tryGet("kara.parameters.logging.masked")?.split(",")?.map { it.trim() }.orEmpty()
+    internal val maskedParameterNames = config.tryGet("kara.parameters.logging.masked")?.split(",")?.map { it.trim() }.orEmpty()
 
     val version: Int = ++versionCounter
 
@@ -56,16 +56,7 @@ class ApplicationContext(val config: ApplicationConfig,
     fun dispatch(request: HttpServletRequest, response: HttpServletResponse): Boolean {
 
         fun formatLogErrorMsg(error: String, req: HttpServletRequest) : String {
-            val paramAndValues = req.parameterMap.toList().
-                    joinToString(prefix = "{", postfix = "}") { (name, value) ->
-                        val valueStr = when {
-                            name in maskedParameterNames -> "*****"
-                            value.size == 1 -> value[0]
-                            else -> value.joinToString(prefix = "[", postfix = "]", separator = ",")
-                        }
-                        "$name: $valueStr"
-            }
-            return "$error processing ${req.method} ${req.requestURL}, parameters=$paramAndValues, " +
+            return "$error processing ${req.method} ${req.requestURL}, parameters=${req.printAllParameters()}, " +
                     "User agent: ${req.getHeader("User-Agent")}, Referer: ${req.getHeader("Referer")}"
         }
 

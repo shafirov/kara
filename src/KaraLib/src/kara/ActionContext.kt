@@ -20,6 +20,16 @@ import kotlin.reflect.KProperty
 fun HttpSession.getDescription() : String =
         this.attributeNames!!.toList().joinToString { "$it: ${this.getAttribute(it)}" }
 
+fun HttpServletRequest.printAllParameters(prefix: String = "{", postfix: String = "}")
+        = parameterMap.toList().joinToString(prefix = prefix, postfix = postfix) { (name, value) ->
+            val valueStr = when {
+                name in ActionContext.tryGet()?.appContext?.maskedParameterNames.orEmpty() -> "*****"
+                value.size == 1 -> value[0]
+                else -> value.joinToString(prefix = "[", postfix = "]", separator = ",")
+            }
+            "$name: $valueStr"
+        }
+
 /** This contains information about the current rendering action.
  * An action context is provided by the dispatcher to the action result when it's rendered.
  */
