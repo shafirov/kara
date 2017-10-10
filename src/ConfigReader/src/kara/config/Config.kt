@@ -40,6 +40,7 @@ open class Config {
     /** Sets a value for the given key. */
     operator fun set(name: String, value: String) {
         data[name] = value
+        cache.remove(name)
     }
 
     /** Returns true if the config contains a value for the given key. */
