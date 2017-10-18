@@ -46,10 +46,13 @@ open class Config {
     /** Returns true if the config contains a value for the given key. */
     fun contains(name: String): Boolean = data.containsKey(name) || lookupJNDI(name) != null
 
+    private val maskedParamNames by lazy { DEFAULT_MASKED_PARAMS + tryGet(ADDITIONAL_CONFIG_MASKED_PARAM)?.split(",")?.map { it.trim() }.orEmpty() }
+
     /** Prints the entire config to a nicely formatted string. */
     override fun toString(): String = buildString {
-        for (name in data.keys) {
-            appendln("$name: ${data[name]}")
+        for ((name, value) in data) {
+            val maskedValue = if (maskedParamNames.any { name.contains(it) }) MASKED_PARAM_VALUE else value
+            appendln("$name: $maskedValue")
         }
     }
 
@@ -128,5 +131,9 @@ open class Config {
 
             append(line, lastAppend, line.length)
         }
+
+        private val DEFAULT_MASKED_PARAMS = listOf("password","secret")
+        private val ADDITIONAL_CONFIG_MASKED_PARAM = "kara.config.masked.params"
+        private const val MASKED_PARAM_VALUE = "*****"
     }
 }
