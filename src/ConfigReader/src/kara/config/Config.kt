@@ -44,7 +44,7 @@ open class Config {
     }
 
     /** Returns true if the config contains a value for the given key. */
-    fun contains(name: String): Boolean = data.containsKey(name) || lookupJNDI(name) != null
+    fun contains(name: String): Boolean = cache.containsKey(name) || data.containsKey(name) || lookupJNDI(name) != null
 
     private val maskedParamNames by lazy { DEFAULT_MASKED_PARAMS + tryGet(ADDITIONAL_CONFIG_MASKED_PARAM)?.split(",")?.map { it.trim() }.orEmpty() }
 
