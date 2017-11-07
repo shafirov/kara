@@ -56,7 +56,7 @@ class ApplicationContext(val config: ApplicationConfig,
     fun dispatch(request: HttpServletRequest, response: HttpServletResponse): Boolean {
 
         fun formatLogErrorMsg(error: String, req: HttpServletRequest) : String {
-            return "$error processing ${req.method} ${req.requestURL}, parameters=${req.printAllParameters()}, " +
+            return "$error processing ${req.method} ${req.requestURL}, parameters=${req.printAllParameters(this)}, " +
                     "User agent: ${req.getHeader("User-Agent")}, Referer: ${req.getHeader("Referer")}"
         }
 
