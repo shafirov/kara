@@ -47,7 +47,7 @@ fun <T:Any> KClass<T>.buildBeanInstance(allParams: Map<String, String>): T =
 fun KCallable<*>.boundReceiver() = (this as? FunctionReference)?.boundReceiver ?:
         (parameters.find { it.kind == KParameter.Kind.INSTANCE && it.index == 0 }?.type?.classifier as? KClass<*>)?.objectInstance
 
-fun <R:Any> KCallable<R>.resolveAndCall(allParams: Map<String, String>, classLoader: ClassLoader? = javaClass.classLoader) : R {
+fun <R:Any> KCallable<R>.resolveAndCall(allParams: Map<String, String>, classLoader: ClassLoader?) : R {
     val args = parameters.map { param ->
         val stringValue = allParams[param.name]
         val kclazz = paramJavaType(param.type.javaType).kotlinCached

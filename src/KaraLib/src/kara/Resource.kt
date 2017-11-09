@@ -91,7 +91,7 @@ internal class FunctionWrapperResource(val func: KFunction<Any>, val params: Map
     override fun handle(context: ActionContext): ActionResult = try {
         val _contentType = owner::class.findAnnotation<Controller>()!!.contentType
         val (code, result) = try {
-            HttpServletResponse.SC_OK to func.resolveAndCall(params)
+            HttpServletResponse.SC_OK to func.resolveAndCall(params, owner::class.java.classLoader)
         } catch (e : ResultWithCodeException) {
             e.code to e.result
         } catch (e : InvocationTargetException) {
