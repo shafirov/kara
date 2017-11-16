@@ -10,6 +10,7 @@ import kotlinx.reflection.urlDecode
 import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.findAnnotation
@@ -21,7 +22,7 @@ private infix fun <A, B, C> Pair<A, B>.and(c: C) = Triple(first, second, c)
 /** Contains all the information necessary to match a route and execute an action.
  */
 class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
-                         val resourceClass: KClass<*>,
+                         val resourceImpl: KAnnotatedElement,
                          val resourceFun: (Map<String, String>) -> Resource,
                          val allowCrossOrigin: String?) {
 
@@ -88,7 +89,7 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
         val params = buildParams(request)
 
         val resource = resourceFun(params._map)
-        val actionContext = ActionContext(context, request, response, params, resourceClass.findAnnotation<NoSession>() == null)
+        val actionContext = ActionContext(context, request, response, params, resourceImpl.findAnnotation<NoSession>() == null)
 
         actionContext.withContext {
             val actionResult = when {
@@ -147,7 +148,7 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
             val resolvedRoute = func.boundReceiver()?.javaClass?.routePrefix().orEmpty()
                     .appendPathElement(route.replace("#", func::class.simpleName!!.toLowerCase()))
 
-            return ResourceDescriptor(method, resolvedRoute, func::class, { FunctionWrapperResource(func, it) }, crossOrigin)
+            return ResourceDescriptor(method, resolvedRoute, func, { FunctionWrapperResource(func, it) }, crossOrigin)
         }
 
         private fun extractFromAnnotation(ann: Annotation): Triple<HttpMethod, String?, String> = when (ann) {
@@ -160,7 +161,7 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
         }
     }
 
-    override fun toString(): String = "Resource<$resourceClass> at $route"
+    override fun toString(): String = "Resource<$resourceImpl> at $route"
 
 }
 
