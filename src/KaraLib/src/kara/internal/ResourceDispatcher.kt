@@ -13,9 +13,17 @@ class ResourceDispatcher(val context: ApplicationContext, resourceTypes: List<Pa
 
     private val resources = resourceTypes.toMap()
 
-    private val httpMethods = resources.values.groupBy { it.httpMethod }.mapValues { (method, descriptors) ->
-        descriptors.groupBy { it.route }.mapValues { (route, descList) ->
-            descList.singleOrNull() ?: error("Route [$method - '$route'] has ${descList.size} descriptors, but only 1 is expected!")
+    private val httpMethods = resources.values.groupBy { it.httpMethod }
+    
+    init {
+        val errors = httpMethods.flatMap { (method, descriptors) ->
+            descriptors.groupingBy { it.route }.eachCount().filter { it.value > 1 }.map { Triple(method, it.key, it.value) }
+        }
+        if (errors.isNotEmpty()) {
+            val error = errors.joinToString { (method, route, count) ->
+                "\r\n\tRoute [$method - '$route'] has $count descriptors, but only 1 is expected!"
+            }
+            error(error)
         }
     }
 
@@ -24,7 +32,7 @@ class ResourceDispatcher(val context: ApplicationContext, resourceTypes: List<Pa
     /** Matches an http method and url to an ActionInfo object. Returns null if no match is found.
      */
     fun findDescriptor(httpMethod: String, url: String): ResourceDescriptor? {
-        val matches = httpMethods[httpMethod.asHttpMethod()]?.filterValues { it.matches(url) }?.values.orEmpty()
+        val matches = httpMethods[httpMethod.asHttpMethod()]?.filter { it.matches(url) }.orEmpty()
 
         return when (matches.size) {
             1 -> matches.single()

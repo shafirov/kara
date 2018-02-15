@@ -35,6 +35,9 @@ class ApplicationContext(val config: ApplicationConfig,
             monitor.created(this)
             monitorInstances.add(monitor)
         }
+
+        // init dispatcher on application start
+        dispatcher
     }
 
     fun intercept(interceptor: (request: HttpServletRequest, response: HttpServletResponse,
