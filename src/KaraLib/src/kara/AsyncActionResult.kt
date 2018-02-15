@@ -4,7 +4,9 @@ import kara.internal.logger
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.ThreadPoolExecutor
-import javax.servlet.*
+import javax.servlet.AsyncContext
+import javax.servlet.AsyncEvent
+import javax.servlet.AsyncListener
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -88,10 +90,10 @@ private fun AsyncResult.execute() {
         context.withContext {
             val result = context.body()
 
-            context.flushSessionCache()
             if (!timed_out) {
                 result.writeResponse(context)
             }
+            context.flushSessionCache()
         }
     }
     finally {

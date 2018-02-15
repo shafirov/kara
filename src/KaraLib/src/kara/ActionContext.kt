@@ -40,7 +40,7 @@ class ActionContext(val appContext: ApplicationContext,
                     val params : RouteParameters,
                     val allowHttpSession: Boolean) {
     val config: ApplicationConfig = appContext.config
-    val session = if (allowHttpSession) HttpActionSession({request.getSession(true)!!}) else NullSession
+    val session = if (allowHttpSession) HttpActionSession(request) else NullSession
 
     internal val data: HashMap<Any, Any?> = HashMap()
     private val sessionCache = HashMap<String, Any?>()
@@ -62,6 +62,7 @@ class ActionContext(val appContext: ApplicationContext,
 
     fun toSession(key: String, value: Any?) {
         if (value !is Serializable?) error("Non serializable value to session: key=$key, value=$value")
+        session.instatiateHttpSession()
         sessionCache[key] = value
     }
 

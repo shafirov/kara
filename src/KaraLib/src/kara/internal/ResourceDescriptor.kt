@@ -128,8 +128,8 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
                     }
                 }
             }
-            actionContext.flushSessionCache()
             actionResult.writeResponse(actionContext)
+            actionContext.flushSessionCache()
         }
     }
 
