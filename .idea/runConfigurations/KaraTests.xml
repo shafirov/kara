@@ -8,7 +8,7 @@
     </extension>
     <module name="KaraTests" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-    <option name="ALTERNATIVE_JRE_PATH" value="" />
+    <option name="ALTERNATIVE_JRE_PATH" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
@@ -32,8 +32,9 @@
     <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Run" />
     <method>
-      <option name="BuildArtifacts" enabled="true" />
-      <option name="Make" enabled="true" />
+      <option name="BuildArtifacts" enabled="true">
+        <artifact name="Kara" />
+      </option>
     </method>
   </configuration>
 </component>

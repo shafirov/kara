@@ -15,11 +15,6 @@
         <element id="module-output" name="KaraExec" />
         <element id="module-output" name="KaraLib" />
       </element>
-      <element id="library" level="project" name="Logging" />
-      <element id="library" level="project" name="KotlinJavaRuntime" />
-      <element id="library" level="project" name="Jetty" />
-      <element id="library" level="project" name="ServletAPI" />
-      <element id="library" level="project" name="commons-io-2.4" />
       <element id="archive" name="kotlinx.reflection.jar">
         <element id="module-output" name="ReflectionUtil" />
       </element>
@@ -42,10 +37,17 @@
       <element id="archive" name="kootstrap.jar">
         <element id="module-output" name="Kootstrap" />
       </element>
-      <element id="library" level="project" name="YuiCompressor" />
-      <element id="library" level="project" name="LessCompiler" />
-      <element id="library" level="project" name="Rhino" />
-      <element id="library" level="project" name="ClosureCompiler" />
+      <element id="directory" name="lib">
+        <element id="library" level="project" name="ServletAPI" />
+        <element id="library" level="project" name="ClosureCompiler" />
+        <element id="library" level="project" name="commons-io-2.4" />
+        <element id="library" level="project" name="Jetty" />
+        <element id="library" level="project" name="LessCompiler" />
+        <element id="library" level="project" name="KotlinJavaRuntime" />
+        <element id="library" level="project" name="Logging" />
+        <element id="library" level="project" name="Rhino" />
+        <element id="library" level="project" name="YuiCompressor" />
+      </element>
     </root>
   </artifact>
 </component>
