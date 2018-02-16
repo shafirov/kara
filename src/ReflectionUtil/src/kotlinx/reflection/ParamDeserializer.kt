@@ -110,7 +110,7 @@ object ArraySerializer : TypeSerializer<Array<*>>() {
         return result.apply {
             values.forEachIndexed { indx, e ->
                 this[indx] = if (e != NULL_CHAR) {
-                    Serialization.deserialize(e, arrayType.kotlinCached, paramType.java.classLoader)
+                    Serialization.deserialize(e, arrayType.kotlin, paramType.java.classLoader)
                 } else {
                     null
                 }

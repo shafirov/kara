@@ -118,7 +118,7 @@ private fun KAnnotatedElement.fastRoute(): ResourceDescriptor =
         ActionContext.tryGet()?.appContext?.dispatcher?.route(this) ?: route()
 
 fun KClass<out Resource>.baseLink(): Link = fastRoute().baseLink()
-fun Class<out Resource>.baseLink(): Link = kotlinCached.baseLink()
+fun Class<out Resource>.baseLink(): Link = kotlin.baseLink()
 fun KFunction<*>.baseLink() : Link = fastRoute().baseLink()
 
 

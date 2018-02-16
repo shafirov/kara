@@ -8,7 +8,6 @@ import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
 import kotlin.jvm.internal.FunctionReference
-import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -19,15 +18,6 @@ import kotlin.reflect.jvm.javaType
 
 private object NullMask
 private fun Any.unmask():Any? = if (this == NullMask) null else this
-
-// can be removed when fixed: KT-17594 consider caching for Class<T>.kotlin
-@Suppress("USELESS_CAST")
-val <T: Any> Class<T>.kotlinCached: KClass<T>
-    get() = Reflection.getOrCreateKotlinClass(this) as KClass<T>
-
-@Suppress("UNCHECKED_CAST")
-val <T : Annotation> T.annotationClassCached: KClass<out T>
-    get() = (this as java.lang.annotation.Annotation).annotationType().kotlinCached as KClass<out T>
 
 private val propertyGetters = ConcurrentHashMap<Pair<KClass<out Any>, String>, Any>()
 
@@ -50,7 +40,7 @@ fun KCallable<*>.boundReceiver() = (this as? FunctionReference)?.boundReceiver ?
 fun <R:Any> KCallable<R>.resolveAndCall(allParams: Map<String, String>, classLoader: ClassLoader?) : R {
     val args = parameters.map { param ->
         val stringValue = allParams[param.name]
-        val kclazz = paramJavaType(param.type.javaType).kotlinCached
+        val kclazz = paramJavaType(param.type.javaType).kotlin
         val isNullable = param.type.isMarkedNullable
         param to when {
             param.kind == KParameter.Kind.INSTANCE -> boundReceiver()!!

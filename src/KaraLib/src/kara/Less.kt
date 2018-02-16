@@ -27,7 +27,7 @@ open class EmbeddedLessResource(val name: String) : CachedResource() {
 
 
     override fun validateCache(context: ActionContext, cache: ResourceCache): Boolean {
-        val (lessSource, combinedModification) = resourceAndModification(context)
+        val (_, combinedModification) = resourceAndModification(context)
         return combinedModification == cache.lastModified
     }
 }

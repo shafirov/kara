@@ -1,10 +1,8 @@
 package kara.internal
 
 import kara.*
-import kotlinx.reflection.annotationClassCached
 import kotlinx.reflection.filterIsAssignable
 import kotlinx.reflection.findClasses
-import kotlinx.reflection.kotlinCached
 import java.util.*
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
@@ -13,7 +11,7 @@ import kotlin.reflect.full.superclasses
 
 val karaAnnotations = listOf(Get::class, Post::class, Put::class, Delete::class, Route::class, Location::class)
 
-fun KAnnotatedElement.getKaraAnnotation() = annotations.find { karaAnnotations.contains(it.annotationClassCached) }
+fun KAnnotatedElement.getKaraAnnotation() = annotations.find { karaAnnotations.contains(it.annotationClass) }
 
 fun KClass<*>.getKaraAnnotationFromSuper() = superclasses.find{ it.ok() }?.getKaraAnnotation()
 
@@ -23,7 +21,7 @@ private fun KClass<*>.inheritAnnotatedInterfaceController() : Boolean =
         this.superclasses.any { it.isInterfaceController() && it.ok() } && this.isFinal
 
 private fun KClass<*>.isInterfaceController() : Boolean =
-        this.annotations.map { it.annotationClassCached }.contains(InterfaceController::class)
+        this.annotations.map { it.annotationClass }.contains(InterfaceController::class)
 
 private fun List<KAnnotatedElement>.toResourceDescriptorWithInerited() : List<Pair<KAnnotatedElement, ResourceDescriptor>> {
     val descriptorList = ArrayList<Pair<KAnnotatedElement, ResourceDescriptor>>()
@@ -41,11 +39,11 @@ fun scanPackageForResources(prefix: String, classloader: ClassLoader, cache: Mut
         : List<Pair<KAnnotatedElement, ResourceDescriptor>> {
     try {
         val classes = classloader.findClasses(prefix, cache)
-        val annotatedClasses = classes.filterIsAssignable<Resource>().map { it.kotlinCached }.filter {
+        val annotatedClasses = classes.filterIsAssignable<Resource>().map { it.kotlin }.filter {
             (it.ok() && !it.isInterfaceController()) || it.inheritAnnotatedInterfaceController()
         }.toResourceDescriptorWithInerited()
-        val annotatedFunctions = classes.filter{ it.isAnnotationPresent(Controller::class.java) && it.kotlinCached.objectInstance != null}.
-                    flatMap { it.kotlinCached.declaredMemberFunctions.filter { it.ok() } }.mapNotNull {
+        val annotatedFunctions = classes.filter{ it.isAnnotationPresent(Controller::class.java) && it.kotlin.objectInstance != null}.
+                    flatMap { it.kotlin.declaredMemberFunctions.filter { it.ok() } }.mapNotNull {
             it.getKaraAnnotation()?.let {karaAnnotation -> it to it.route(karaAnnotation) }
         }
         return annotatedClasses + annotatedFunctions
@@ -64,7 +62,7 @@ fun scanObjects(objects : Array<Any>, classloader: ClassLoader? = null) : List<P
     fun scan(routesObject : Any) {
         val newClass = classloader?.loadClass(routesObject.javaClass.name) ?: routesObject.javaClass
         for (innerClass in newClass.declaredClasses) {
-            val kotlinCached = innerClass.kotlinCached
+            val kotlinCached = innerClass.kotlin
             kotlinCached.objectInstance?.let {
                 scan(it)
             }
@@ -74,7 +72,7 @@ fun scanObjects(objects : Array<Any>, classloader: ClassLoader? = null) : List<P
             }
         }
 
-        answer.addAll(newClass.kotlinCached.declaredMemberFunctions.filter { it.ok() }.map { it to it.route() })
+        answer.addAll(newClass.kotlin.declaredMemberFunctions.filter { it.ok() }.map { it to it.route() })
 
     }
 
