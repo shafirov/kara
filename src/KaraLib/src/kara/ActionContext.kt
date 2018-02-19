@@ -43,7 +43,6 @@ class ActionContext(val appContext: ApplicationContext,
     val session = if (allowHttpSession) HttpActionSession(request) else NullSession
 
     internal val data: HashMap<Any, Any?> = HashMap()
-    private val sessionCache = HashMap<String, Any?>()
 
     val startedAt : Long = System.currentTimeMillis()
 
@@ -62,24 +61,19 @@ class ActionContext(val appContext: ApplicationContext,
 
     fun toSession(key: String, value: Any?) {
         if (value !is Serializable?) error("Non serializable value to session: key=$key, value=$value")
-        session.instatiateHttpSession()
-        sessionCache[key] = value
+        session.setAttribute(key, value)
     }
 
-    fun fromSession(key: String): Any? =
-        if (sessionCache.containsKey(key)) sessionCache[key] else sessionCache.getOrPut(key) {
-            val raw = session.getAttribute(key)
-            when (raw) {
-                is ByteArray -> raw.readObject()
-                else -> raw
-            }
+    fun fromSession(key: String): Any? {
+        val raw = session.getAttribute(key)
+        return when (raw) {
+            is ByteArray -> raw.readObject()
+            else -> raw
         }
+    }
 
     fun flushSessionCache() {
-        sessionCache.forEach { entry ->
-            session.setAttribute(entry.key, (entry.value as? Serializable)?.toBytes())
-        }
-        sessionCache.clear()
+        session.flush()
     }
 
     fun sessionToken(): String {
