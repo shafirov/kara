@@ -61,7 +61,7 @@ class ActionContext(val appContext: ApplicationContext,
 
     fun toSession(key: String, value: Any?) {
         if (value !is Serializable?) error("Non serializable value to session: key=$key, value=$value")
-        session.setAttribute(key, value)
+        session.setAttribute(key, value?.toBytes())
     }
 
     fun fromSession(key: String): Any? {

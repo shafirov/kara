@@ -64,7 +64,7 @@ class FlashScopeStorage : Serializable {
             var res = request.getAttribute(flashScopeAttributeName) as FlashScopeStorage?
 
             if (res == null) {
-                res = request.getSession(false)?.getAttribute(flashScopeAttributeName) as FlashScopeStorage?
+                res = ActionContext.tryGet()?.session?.getAttribute(flashScopeAttributeName) as FlashScopeStorage?
             }
 
             res?.next()
@@ -72,7 +72,6 @@ class FlashScopeStorage : Serializable {
 
         fun current() : FlashScopeStorage {
             val ctx = ActionContext.current()
-
 
             return ctx.request.getAttribute(flashScopeAttributeName) as FlashScopeStorage?
                     ?: ctx.session.getAttribute(flashScopeAttributeName) as FlashScopeStorage?
