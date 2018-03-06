@@ -2,6 +2,7 @@ package kara
 
 import kotlinx.html.Link
 import java.io.ByteArrayOutputStream
+import java.io.InvalidClassException
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.Exception
@@ -67,7 +68,18 @@ class ActionContext(val appContext: ApplicationContext,
     fun fromSession(key: String): Any? {
         val raw = session.getAttribute(key)
         return when (raw) {
-            is ByteArray -> raw.readObject()
+            is ByteArray -> try {
+                raw.readObject()
+            } catch (e: Exception) {
+                when(e) {
+                    is ClassNotFoundException, is InvalidClassException -> {
+                        Application.logger.warn("Can't deserialize key $key from session. Key will be removed from session.", e)
+                        session.setAttribute(key, null)
+                        null
+                    }
+                    else -> throw e
+                }
+            }
             else -> raw
         }
     }
