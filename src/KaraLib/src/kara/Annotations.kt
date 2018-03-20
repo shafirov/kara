@@ -7,7 +7,7 @@ package kara
 
 /** Used to annotate actions that respond to HTTP GET requests.
  */
-@Retention(AnnotationRetention.RUNTIME) annotation class Get(val route : String = "")
+@Retention(AnnotationRetention.RUNTIME) annotation class Get(val route : String = "", val allowCrossOrigin: String = "")
 
 /** Used to annotate actions that respond to POST requests.
  */

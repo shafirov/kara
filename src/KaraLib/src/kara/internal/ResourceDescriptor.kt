@@ -152,7 +152,7 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
         }
 
         private fun extractFromAnnotation(ann: Annotation): Triple<HttpMethod, String?, String> = when (ann) {
-            is Get -> HttpMethod.GET to null and ann.route
+            is Get -> HttpMethod.GET to ann.allowCrossOrigin.takeIf { it.isNotEmpty() } and ann.route
             is Post -> HttpMethod.POST to ann.allowCrossOrigin and ann.route
             is Put -> HttpMethod.PUT to ann.allowCrossOrigin and ann.route
             is Delete -> HttpMethod.DELETE to ann.allowCrossOrigin and ann.route
