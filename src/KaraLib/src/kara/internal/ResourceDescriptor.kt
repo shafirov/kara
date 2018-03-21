@@ -99,23 +99,9 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
                     val origin = request.getHeader("origin")
 
                     val requestAllowed by lazy {
-                        val allowedOrigin = when {
-                            allowCrossOrigin!! == "*" -> "*"
-                            origin.isNullOrBlank() -> null
-                            allowCrossOrigin.split(" ").any {
-                                when {
-                                    it.startsWith("http://") || it.startsWith("https://") -> it.equals(origin, true)
-                                    else -> {
-                                        "http(s)?://(.+.)?${Regex.escapeReplacement(it.trim())}[/]?\$".toRegex(RegexOption.IGNORE_CASE).matches(origin)
-                                    }
-                                }
-                            } -> origin
-                            else -> null
-                        }
-                        allowedOrigin?.let {
+                        resolveAllowOriginHeaderValue(origin, allowCrossOrigin!!)?.also {
                             response.addHeader(ALLOW_CROSS_ORIGIN_HEADER, it)
-                        }
-                        allowedOrigin != null
+                        } != null
                     }
                     try {
                         if (!allowCrossOrigin.isNullOrBlank() && !requestAllowed) {
@@ -135,6 +121,20 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
 
     companion object {
         const val ALLOW_CROSS_ORIGIN_HEADER = "Access-Control-Allow-Origin"
+
+        fun resolveAllowOriginHeaderValue(origin: String, allowCrossOrigin: String) = when {
+            allowCrossOrigin == "*" -> "*"
+            origin.isBlank() -> null
+            allowCrossOrigin.split(" ").any {
+                when {
+                    it.startsWith("http://") || it.startsWith("https://") -> it.equals(origin, true)
+                    else -> {
+                        "http(s)?://(.+.)?${Regex.escapeReplacement(it.trim())}[/]?\$".toRegex(RegexOption.IGNORE_CASE).matches(origin)
+                    }
+                }
+            } -> origin
+            else -> null
+        }
 
         fun fromResourceClass(clazz: KClass<out Resource>, ann: Annotation): ResourceDescriptor {
             val (method, crossOrigin, route) = extractFromAnnotation(ann)
