@@ -96,7 +96,7 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
                 allowCrossOrigin == "" && params.optListParam(ActionContext.SESSION_TOKEN_PARAMETER)?.distinct()?.singleOrNull() != actionContext.sessionToken() ->
                     ErrorResult(403, "This request is only valid within same origin")
                 else -> {
-                    val origin = request.getHeader("origin")
+                    val origin: String? = request.getHeader("Origin")
 
                     val requestAllowed by lazy {
                         resolveAllowOriginHeaderValue(origin, allowCrossOrigin!!)?.also {
@@ -122,14 +122,14 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
     companion object {
         const val ALLOW_CROSS_ORIGIN_HEADER = "Access-Control-Allow-Origin"
 
-        fun resolveAllowOriginHeaderValue(origin: String, allowCrossOrigin: String) = when {
+        fun resolveAllowOriginHeaderValue(origin: String?, allowCrossOrigin: String) = when {
             allowCrossOrigin == "*" -> "*"
-            origin.isBlank() -> null
+            origin.isNullOrBlank() -> null
             allowCrossOrigin.split(" ").any {
                 when {
                     it.startsWith("http://") || it.startsWith("https://") -> it.equals(origin, true)
                     else -> {
-                        "http(s)?://(.+.)?${Regex.escapeReplacement(it.trim())}[/]?\$".toRegex(RegexOption.IGNORE_CASE).matches(origin)
+                        "http(s)?://(.+.)?${Regex.escapeReplacement(it.trim())}[/]?\$".toRegex(RegexOption.IGNORE_CASE).matches(origin!!)
                     }
                 }
             } -> origin
