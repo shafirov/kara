@@ -118,7 +118,12 @@ fun ActionContext.async(body: ActionContext.() -> ActionResult): ActionResult {
     val asyncResult = AsyncResult(asyncContext, appContext, params, allowHttpSession, body)
 
     KaraAsyncExecutor.submit {
-        asyncResult.execute()
+        try {
+            asyncResult.execute()
+        } catch (e: Throwable) {
+            logger.error(e.message, e)
+            throw e
+        }
     }
 
     return asyncResult
