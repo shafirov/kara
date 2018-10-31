@@ -21,6 +21,8 @@ open class ApplicationConfig(val appClassloader: ClassLoader) : Config() {
     val isMinifyCss by lazy { tryGet("kara.minify.css")?.toBoolean() ?: false }
     val isMinifyJs by lazy { tryGet("kara.minify.js")?.toBoolean() ?: false }
 
+    val isReloadClasses by lazy { tryGet("kara.reloadClasses")?.toBoolean() ?: false }
+
     /** Returns true if the application is running in the development environment. */
     fun isDevelopment(): Boolean = get("kara.environment") == "development"
 
