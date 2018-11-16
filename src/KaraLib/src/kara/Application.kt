@@ -22,7 +22,7 @@ open class Application(val config: ApplicationConfig, val appContext: String = "
 
     open val context: ApplicationContext
         get() = synchronized(contextLock) {
-            if (config.isDevelopment()) {
+            if (config.isDevelopment() && config.isReloadClasses) {
                 val changes = watchKeys.flatMap { it.pollEvents()!! }
                 if (changes.isNotEmpty()) {
                     logger.info("Changes in application detected.")
