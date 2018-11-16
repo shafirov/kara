@@ -30,5 +30,6 @@
     <orderEntry type="library" name="LessCompiler" level="project" />
     <orderEntry type="library" name="Rhino" level="project" />
     <orderEntry type="library" name="ClosureCompiler" level="project" />
+    <orderEntry type="library" name="annotations-16.0.3" level="project" />
   </component>
 </module>

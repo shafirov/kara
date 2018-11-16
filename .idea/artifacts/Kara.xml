@@ -47,6 +47,7 @@
         <element id="library" level="project" name="Logging" />
         <element id="library" level="project" name="Rhino" />
         <element id="library" level="project" name="YuiCompressor" />
+        <element id="library" level="project" name="annotations-16.0.3" />
       </element>
     </root>
   </artifact>

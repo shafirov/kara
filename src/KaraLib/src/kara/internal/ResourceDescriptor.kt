@@ -129,7 +129,7 @@ class ResourceDescriptor(val httpMethod: HttpMethod, val route: String,
                 when {
                     it.startsWith("http://") || it.startsWith("https://") -> it.equals(origin, true)
                     else -> {
-                        "http(s)?://(.+.)?${Regex.escapeReplacement(it.trim())}[/]?\$".toRegex(RegexOption.IGNORE_CASE).matches(origin!!)
+                        "http(s)?://(.+.)?${Regex.escapeReplacement(it.trim())}[/]?\$".toRegex(RegexOption.IGNORE_CASE).matches(origin)
                     }
                 }
             } -> origin
