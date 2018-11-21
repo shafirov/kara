@@ -60,7 +60,7 @@ open class Application(val config: ApplicationConfig, val appContext: String = "
         val resourceTypes = config.routePackages.flatMap {
             scanPackageForResources(it, classLoader, cache)
         }
-        logger.info("Recources scan took " + (System.currentTimeMillis() - start))
+        logger.info("Resources scan took " + (System.currentTimeMillis() - start))
 
         if (config.isDevelopment())
             watchUrls(resourceTypes)
